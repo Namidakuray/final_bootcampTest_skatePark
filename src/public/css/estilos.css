@@ -18,20 +18,7 @@ body {
       background-size: cover;
       width: 60px;
       height: 60px;
-  }
-  
-  tbody tr:nth-child(1) td div{
-          background-image: url("/tony.jpg");
-  }
-  
-  tbody tr:nth-child(2) td div{
-      background-image: url("/Evelien.jpg");
-  }
-  
-  tbody tr:nth-child(3) td div{
-      background-image: url("/Danny.jpg");
-  }
-  
+  }  
   input{
       text-align: center;
   }

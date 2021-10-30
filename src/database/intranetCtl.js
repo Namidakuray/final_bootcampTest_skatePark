@@ -1,65 +1,16 @@
-const cp = require("child_process");
 require("dotenv").config();
-
-/* (4.) Capturar los posibles errores que puedan ocurrir a través de bloques catch o
+const tools = require('../middleware/tools');
+/* Se capturan los posibles errores que puedan ocurrir a través de bloques catch o
 parámetros de funciones callbacks para condicionar las funciones del servidor. */
 
-
-/* Creación de las tablas a utilizar */
-const initBank = async (pool) => {
-	try {
-		let client = await pool.connect();
-		try {
-			let queryTester_01 = {text: `SELECT * FROM usuario`};
-			let queryTester_02 = {text: `SELECT * FROM transferencia`};
-			try {
-				await client.query(queryTester_01);
-				console.log("Ya existe la tabla usuario")
-			} catch (error) {
-				const userTable = `CREATE TABLE usuario (id SERIAL PRIMARY KEY, nombre VARCHAR(50),balance FLOAT CHECK (balance >= 0))`;
-				await client.query(userTable);
-				console.log("tabla usuario creada con exito")
-			}
-			try {
-				await client.query(queryTester_02);
-				console.log("Ya existe la tabla transferencia")
-			} catch (error) {
-				const transactionTable = `CREATE TABLE transferencia (id SERIAL PRIMARY KEY, emisor INT, receptor INT, monto FLOAT, fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (emisor) REFERENCES usuario(id), FOREIGN KEY (receptor) REFERENCES usuario(id))`;
-				await client.query(transactionTable);
-				console.log("tabla transferencia creada con exito")
-			}
-			console.log("DDBB lista para ser utilizada")
-				} catch (error) {
-			console.log("error al crear las tablas, error : ", error);
-		}
-	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
-	}
-};
-const deleteTables = async (pool) => {
-	try {
-		let client = await pool.connect();
-		try {
-			await client.query("BEGIN");
-			await client.query(`DROP TABLE transferencia`);
-			await client.query(`DROP TABLE usuario`);
-			await client.query("COMMIT");
-			client.release();
-			console.log("Tablas eliminadas con éxito.");
-		} catch (error) {
-			console.log("error al intentar eliminar la tablas ", error.code);
-		}
-	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
-	}
-};
-
-/* (1.) Realizar consultas DML para la
+/* Consultas DML para la
 gestión y persistencia de datos. */
-const getAcc = async (pool) => {
+
+// GET /skaters
+const getSkaters = async (pool) => {
 	let queryStatement = {
-		name: "get-balance",
-		text: "select id, nombre, balance from usuario ORDER BY id;",
+		name: "get-skaters",
+		text: "select email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado, from skater ORDER BY id;",
 	};
 	try {
 		let client = await pool.connect();
@@ -67,7 +18,7 @@ const getAcc = async (pool) => {
 			const res = await client.query(queryStatement);
 			return res.rows;
 		} catch (error) {
-			console.log("dbCtl.getAcc error: ", error.stack);
+			console.log("dbCtl.getSkaters error: ", error.stack);
 		} finally {
 			client.release();
 		}
@@ -75,18 +26,19 @@ const getAcc = async (pool) => {
 		console.log("error al conectar con la DDBB, error : ", error);
 	}
 };
-const insertAcc = async (pool, name, balance) => {
+// POST /skater
+const insertSkater = async (pool, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado) => {
+	let created_on = tools.getStringDate();
 	let queryStatement = {
-		rowMode: "array",
-		text: "INSERT INTO usuario (nombre, balance) VALUES ($1, $2) RETURNING *",
-		values: [name, balance],
+		text: "INSERT INTO skater (email, nombre, apellido, password, created_on, anos_experiencia, especialidad, puntaje, foto, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *",
+		values: [email, nombre, apellido, password, created_on, anos_experiencia, especialidad, puntaje, foto, estado],
 	};
 	try {
 		let client = await pool.connect();
 		try {
 			const res = await client.query(queryStatement);
 			client.release();
-			console.log("Cuenta creada satisfactoriamente :", res.rows[0]);
+			console.log("Cuenta skater creada satisfactoriamente :", res.rows[0]);
 		} catch (error) {
 			console.log("error: ", error.stack);
 		}
@@ -94,18 +46,18 @@ const insertAcc = async (pool, name, balance) => {
 		console.log("error al conectar con la DDBB, error : ", error);
 	}
 };
-const editAcc = async (pool, name, balance, id) => {
+// PUT /skater
+const editSkater = async (pool, id, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado) => {
 	let queryStatement = {
-		rowMode: "array",
-		text: "UPDATE usuario SET nombre = $1, balance = $2 WHERE id = $3 RETURNING *;",
-		values: [name, balance, id],
+		text: "UPDATE skater SET email=$2, nombre=$3, apellido=$4, password=$5, anos_experiencia=$6, especialidad=$7, puntaje=$8, foto=$9, estado=$10 WHERE id = $1 RETURNING *;",
+		values: [id, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado],
 	};
 	try {
 		let client = await pool.connect();
 		try {
 			const res = await client.query(queryStatement);
 			client.release();
-			console.log("Cuenta editada satisfactoriamente :", res.rows[0]);
+			console.log("Cuenta skater editada satisfactoriamente :", res.rows[0]);
 		} catch (error) {
 			console.log("error: ", error.stack);
 		}
@@ -113,6 +65,7 @@ const editAcc = async (pool, name, balance, id) => {
 		console.log("error al conectar con la DDBB, error : ", error);
 	}
 };
+// DELETE /skater
 const deleteAcc = async (pool, id) => {
 	let queryStatement = {
 		rowMode: "array",
@@ -151,7 +104,7 @@ const deleteAcc = async (pool, id) => {
 				console.log("el cliente no existe");
 			}
 		} catch (error) {
-			console.log("error al intentar eliminar la cuenta ", error.stack);
+			console.log("error al intentar eliminar la cuenta skater ", error.stack);
 		}
 	} catch (error) {
 		console.log("error al conectar con la DDBB, error : ", error);
@@ -202,7 +155,7 @@ const newTransaction = async (pool, accountIn, accountOut, mount) => {
 	}
 };
 const getTransaction = async (pool) => {
-	let queryAcc = {name: "get-balance"};
+	let queryAcc = { name: "get-balance" };
 	let queryStatement = {
 		rowMode: "array",
 		name: "get-trans",
@@ -247,13 +200,10 @@ const getTransaction = async (pool) => {
 };
 
 module.exports = {
-	initBank,
-	deleteTables,
-
 	newTransaction,
 	getTransaction,
-	insertAcc,
-	editAcc,
-	getAcc,
+	insertSkater,
+	editSkater,
+	getSkaters,
 	deleteAcc,
 };

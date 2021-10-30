@@ -6,13 +6,14 @@ require('dotenv').config();
 types.setTypeParser(1082, (stringValue)=>{
     return stringValue; //1082 for date type
 });
+
 /*Utiliza el paquete pg para conectarse a PostgreSQL */
 const config = {
-	user: app.get("dbuser"),
-	host: app.get("dbhost"),
-	database: app.get("dbname"),
-	password: app.get("dbpass"),
-	port: app.get("dbport"),
+	user: process.env.DB_USER,
+	host: process.env.DB_HOST,
+	database: process.env.DB_NAME,
+	password: process.env.DB_PASS,
+	port: process.env.DB_PORT,
     max: 20,
     min: 5,
     idleTimeoutMillis: 15000,

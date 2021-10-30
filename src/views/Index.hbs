@@ -1,12 +1,7 @@
 <div class="py-4">
-	<h2>Administración</h2>
-	<hr class="w-50" />
-	<div class="d-flex justify-content-between">
-		<button class="btn btn-success" onclick="createTables();">Crear tablas</button>
-		<button class="btn btn-danger" onclick="deleteTables();">Eliminar tablas</button>
-	</div>
-
-	<table class="table w-50 m-auto">
+	<h2>Lista de participantes</h2>
+	<hr />
+	<table class="table table-dark">
 		<thead>
 			<tr>
 				<th scope="col">#</th>
@@ -24,7 +19,7 @@
 				<td>Tony Hawk</td>
 				<td>12</td>
 				<td>Kickflip</td>
-				<td><input type="checkbox" checked /></td>
+				<td class="text-success font-weight-bold">Aprobado</td>
 			</tr>
 			<tr>
 				<th scope="row">2</th>
@@ -32,7 +27,7 @@
 				<td>Evelien Bouilliart</td>
 				<td>10</td>
 				<td>Heelflip</td>
-				<td><input type="checkbox" checked /></td>
+				<td class="text-success font-weight-bold">Aprobado</td>
 			</tr>
 			<tr>
 				<th scope="row">3</th>
@@ -40,19 +35,14 @@
 				<td>Danny Way</td>
 				<td>8</td>
 				<td>Ollie</td>
-				<td><input type="checkbox" /></td>
+				<td class="text-warning font-weight-bold">En revisión</td>
 			</tr>
 		</tbody>
 	</table>
 </div>
 
-<script>
-	const createTables=async ()=>{
-		await axios.get("/admin/createTables");
-		console.log("createTables is working");
-		};
-	const deleteTables=async ()=>{ 
-		await axios.get("/admin/deleteTables");
-		console.log("deleteTables is working");
-	}
-</script>
+<style>
+	tbody tr:nth-child(1) td div{ background-image: url("/img/tony.jpg"); }
+	tbody tr:nth-child(2) td div{ background-image: url("/img/Evelien.jpg"); }
+	tbody tr:nth-child(3) td div{ background-image: url("/img/Danny.jpg"); }
+</style>

@@ -1,6 +1,5 @@
-# Desafío - Mi gestion de cursos
+# Examen de salida Bootcamp FullStack JavaScript
 
-- Módulo: 08
 - Prueba final
 - dependencias FrontEnd: [bootstrap]
 - dependencias Backend:
@@ -8,6 +7,18 @@
   >[express, pg, express-fileupload, express-handlebars, bcrypt, dotenv]
   - desarrollo
   >[nodemon, morgan]
+- Tecnologías:
+  - NodeJS
+  - PostgreSQL
+- Práctica aplicada:
+  - Variables
+    - SQL lenguaje -> snake_case
+    - JavaScript lenguaje -> camel_case
+  - Comentarios
+    - Comentarios simples [//] -> Inglés
+    - Comentarios complejos [/**/] -> Español
+  - Conexión a ddbb
+    - Uso de singleton
 
 ### Instrucción
 

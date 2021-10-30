@@ -4,38 +4,64 @@
 	<h2>Registro</h2>
 	<hr class="w-50" />
 
-	<form>
+	<form enctype="multipart/form-data">
 		<div class="form-group row w-50 m-auto">
 			<div class="form-group col-12 col-sm-6">
-				<label>Email</label>
-				<input class="form-control m-auto" />
+				<label for="email">Email:</label><br />
+				<input type="email" id="email" value="asd@asd.com" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Nombre</label>
-				<input class="form-control m-auto" />
+				<label for="fname">Nombre:</label><br />
+				<input type="text" id="fname" value="John" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Password</label>
-				<input class="form-control m-auto" />
+				<label for="lname">Apellido:</label><br />
+				<input type="text" id="lname" value="Smith" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Repita la password</label>
-				<input class="form-control m-auto" />
+				<label for="password_01">Password:</label><br />
+				<input type="password" id="password_01" value="****" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Años de experiencia</label>
-				<input class="form-control m-auto" />
+				<label for="password_02">Repita la password:</label><br />
+				<input type="password" id="password_02" value="****" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Especialidad</label>
-				<input class="form-control m-auto" />
+				<label for="experience">Años de experiencia:</label><br />
+				<input type="number" id="experience" value="05" class="form-control m-auto" required/>
+			</div>
+			<div class="form-group col-12 col-sm-6">
+				<label for="speciality">Especialidad:</label><br />
+				<input type="text" id="speciality" value="Kickflip" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-12">
 				<label>Foto de perfil</label>
-				<input type="file" />
+				<input type="file" name="data-img" required />
 			</div>
 		</div>
-		<button class="btn btn-info mb-3">Registrarme</button>
-		<p><a href="#"> Iniciar sesión</a></p>
+		<button  onclick="submit();" type="submit" class="btn btn-info mb-3">Registrarme</button>
 	</form>
 </div>
+
+<script>
+	const email = document.getElementById("email")[0]
+	const nombre = document.getElementById("fname")[0]
+	const apellido = document.getElementById("lname")[0]
+	const password_01 = document.getElementById("password_01")[0]
+	const password_02 = document.getElementById("password_02")[0]
+	const experience = document.getElementById("experience")[0]
+	const speciality = document.getElementById("speciality")[0]
+	const newSkater = {
+		email: email,
+		nombre: nombre,
+		apellido: apellido,
+		password_01: password_01,
+		password_02: password_02,
+		experience: experience,
+		speciality: speciality
+	}
+
+	const submit=async()=>{
+		axios.post("/signup", newSkater);
+	}
+</script>

@@ -4,64 +4,81 @@
 	<h2>Registro</h2>
 	<hr class="w-50" />
 
-	<form enctype="multipart/form-data">
+	<form id="form" method="post" action="signup" enctype="multipart/form-data">
 		<div class="form-group row w-50 m-auto">
 			<div class="form-group col-12 col-sm-6">
 				<label for="email">Email:</label><br />
-				<input type="email" id="email" value="asd@asd.com" class="form-control m-auto" required/>
+				<input type="email" name="email" placeholder="asd@asd.com" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="fname">Nombre:</label><br />
-				<input type="text" id="fname" value="John" class="form-control m-auto" required/>
+				<input type="text" name="fname" placeholder="John" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="lname">Apellido:</label><br />
-				<input type="text" id="lname" value="Smith" class="form-control m-auto" required/>
+				<input type="text" name="lname" placeholder="Smith" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="password_01">Password:</label><br />
-				<input type="password" id="password_01" value="****" class="form-control m-auto" required/>
+				<input type="password" name="password_01" placeholder="****" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="password_02">Repita la password:</label><br />
-				<input type="password" id="password_02" value="****" class="form-control m-auto" required/>
+				<input type="password" name="password_02" placeholder="****" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="experience">Años de experiencia:</label><br />
-				<input type="number" id="experience" value="05" class="form-control m-auto" required/>
+				<input type="number" name="experience" placeholder="05" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="speciality">Especialidad:</label><br />
-				<input type="text" id="speciality" value="Kickflip" class="form-control m-auto" required/>
+				<input type="text" name="speciality" placeholder="Kickflip" class="form-control m-auto" required/>
 			</div>
 			<div class="form-group col-12 col-sm-12">
 				<label>Foto de perfil</label>
-				<input type="file" name="data-img" required />
+				<input type="file" name="img" required />
 			</div>
 		</div>
-		<button  onclick="submit();" type="submit" class="btn btn-info mb-3">Registrarme</button>
+		<button id="button" type="submit" class="btn btn-info mb-3">Registrarme</button>
 	</form>
 </div>
 
 <script>
-	const email = document.getElementById("email")[0]
-	const nombre = document.getElementById("fname")[0]
-	const apellido = document.getElementById("lname")[0]
-	const password_01 = document.getElementById("password_01")[0]
-	const password_02 = document.getElementById("password_02")[0]
-	const experience = document.getElementById("experience")[0]
-	const speciality = document.getElementById("speciality")[0]
-	const newSkater = {
-		email: email,
-		nombre: nombre,
-		apellido: apellido,
-		password_01: password_01,
-		password_02: password_02,
-		experience: experience,
-		speciality: speciality
-	}
-
-	const submit=async()=>{
-		axios.post("/signup", newSkater);
-	}
+	{{!-- const form = document.getElementById("form");
+	const btn = document.getElementById("button")
+	btn.addEventListener("click",(e)=>{
+		e.preventDefault();
+		const email = document.getElementById("email").value;
+		const nombre = document.getElementById("fname").value;
+		const apellido = document.getElementById("lname").value;
+		const password_01 = document.getElementById("password_01").value;
+		const password_02 = document.getElementById("password_02").value;
+		const experience = document.getElementById("experience").value;
+		const speciality = document.getElementById("speciality").value;
+		const newSkater = {
+			email: email,
+			nombre: nombre,
+			apellido: apellido,
+			password_01: password_01,
+			password_02: password_02,
+			experience: experience,
+			speciality: speciality
+		}
+		if(password_01!=password_02){
+			alert("Las contraseñas no coinciden, intente nuevamente.");
+		}else{
+			axios.post("/newSkater", newSkater);
+		}
+	}); --}}
+	const form = document.getElementById("form");
+	form.addEventListener("submit",async (e)=>{
+		e.preventDefault();
+		const password_01 = form.elements["password_01"].value;
+		const password_02 = form.elements["password_02"].value;
+		if(password_01!=password_02){
+			alert("Las contraseñas no coinciden, intente nuevamente.");
+		}else{
+			form.submit();
+		}
+	})
 </script>

@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const secretKey = "Shhhh";
 const path = require('path');
 const morgan = require('morgan');
+const tools = require('./middleware/tools');
 require("dotenv").config();
 
 // Initializations
@@ -30,6 +31,13 @@ app.set("view engine", ".hbs");
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+//limit to upload
+const fileSize = tools.getBiteToMB(5);
+app.use(expressFileUpload({
+  limits: {fileSize: fileSize},
+  abortOnLimit: true,
+  responseOnLimit: "El archivo es demasiado pesado, intente nuevamente con una imagen inferior a los 5Mb"
+}))
 
 // Import Routes
 const indexRoutes = require('./routes/index.routes');

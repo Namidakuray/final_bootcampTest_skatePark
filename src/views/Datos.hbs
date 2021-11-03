@@ -4,50 +4,65 @@
 	<h2>Datos del perfil</h2>
 	<hr class="w-50" />
 
-	<form>
+	<form id="form">
 		<div class="form-group row w-50 m-auto">
 			<div class="form-group col-12 col-sm-6">
-				<label>Email</label>
-				<input
-					class="form-control m-auto"
-					disabled
-					value="tonyhawk@skate.com"
-				/>
+				<label for="email">Email:</label><br />
+				<input type="email" name="email" value="{{resp.email}}" placeholder="asd@asd.com" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Nombre</label>
-				<input class="form-control m-auto" value="Tony Hawk" />
+				<label for="fname">Nombre:</label><br />
+				<input type="text" name="fname" value="{{resp.nombre}}" placeholder="John" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Password</label>
-				<input
-					type="password"
-					class="form-control m-auto"
-					value="12345678"
-				/>
+				<label for="lname">Apellido:</label><br />
+				<input type="text" name="lname" value="{{resp.apellido}}" placeholder="Smith" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Repita la password</label>
-				<input
-					type="password"
-					class="form-control m-auto"
-					value="12345678"
-				/>
+				<label for="last_password">Password:</label><br />
+				<input type="password" name="last_password" placeholder="****" class="form-control m-auto"/>
+			</div>			<div class="form-group col-12 col-sm-6">
+				<label for="password_01">Nueva Password:</label><br />
+				<input type="password" name="password_01" placeholder="****" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Años de experiencia</label>
-				<input class="form-control m-auto" value="12" />
+				<label for="password_02">Repita la nueva password:</label><br />
+				<input type="password" name="password_02" placeholder="****" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
-				<label>Especialidad</label>
-				<input class="form-control m-auto" value="Kickflip" />
+				<label for="experience">Años de experiencia:</label><br />
+				<input type="number" name="experience" value="{{resp.anos_experiencia}}" placeholder="05" class="form-control m-auto"/>
+			</div>
+			<div class="form-group col-12 col-sm-6">
+				<label for="speciality">Especialidad:</label><br />
+				<input type="text" name="speciality" value="{{resp.especialidad}}" placeholder="Kickflip" class="form-control m-auto"/>
 			</div>
 		</div>
-		<div class="mb-1">
-			<button class="btn btn-primary">Actualizar</button>
-		</div>
-		<div>
-			<button class="btn btn-danger">Eliminar cuenta</button>
-		</div>
+		<button type="submit" class="btn btn-info mb-3">Actualizar información</button>
 	</form>
+	<button id="button" class="btn btn-danger mb-3">Eliminar cuenta</button>
 </div>
+
+<script>
+	const form = document.getElementById("form");
+	form.addEventListener("submit",async (e)=>{
+		e.preventDefault();
+		const password_01 = form.elements["password_01"].value;
+		const password_02 = form.elements["password_02"].value;
+		if(password_01!=password_02){
+			alert("Las contraseñas no coinciden, intente nuevamente.");
+		}else{
+			let dataResponse={
+				email: form.elements["email"].value,
+				fname: form.elements["fname"].value,
+				lname: form.elements["lname"].value,
+				last_password: form.elements["last_password"].value,
+				password_01: form.elements["password_01"].value,
+				password_02: form.elements["password_02"].value,
+				experience: form.elements["experience"].value,
+				speciality: form.elements["speciality"].value,
+			}
+			await axios.put("/editAccount/skater/2", dataResponse);
+		}
+	})
+</script>

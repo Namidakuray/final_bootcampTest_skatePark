@@ -8,10 +8,22 @@ router.get("/intranet/admin", (req, res) => {
 	res.render("Admin");
 });
 router.get("/admin/createTables", async (req, res) => {
-	await ddbbCtl.createTables(pool);
+	let resp=await ddbbCtl.createTables(pool);
+	if(resp==true){
+		res.status(200).send(resp);
+	}else{res.status(500).send(resp)}
 });
 router.get("/admin/deleteTables", async (req, res) => {
-	await ddbbCtl.deleteTables(pool);
+	let resp=await ddbbCtl.deleteTables(pool);
+	if(resp==true){
+		res.status(200).send(resp);
+	}else{res.status(500).send(resp)}
+});
+router.get("/admin/insertSkater", async (req, res) => {
+	let resp=await ddbbCtl.insertSkater(pool);
+	if(resp.status==true){
+		res.status(201).send(resp);
+	}else{res.status(500).send(resp)}
 });
 router.get("/intranet", (req, res) => {
 	res.render("Intranet");

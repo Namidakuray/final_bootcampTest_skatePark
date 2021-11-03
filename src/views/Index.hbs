@@ -1,48 +1,41 @@
 <div class="py-4">
-	<h2>Lista de participantes</h2>
+	<h2>Skaters participantes</h2>
 	<hr />
-	<table class="table table-dark">
-		<thead>
-			<tr>
-				<th scope="col">#</th>
-				<th scope="col">Foto</th>
-				<th scope="col">Nombre</th>
-				<th scope="col">Años de experiencia</th>
-				<th scope="col">Especialidad</th>
-				<th scope="col">Estado</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<th scope="row">1</th>
-				<td><div></div></td>
-				<td>Tony Hawk</td>
-				<td>12</td>
-				<td>Kickflip</td>
-				<td class="text-success font-weight-bold">Aprobado</td>
-			</tr>
-			<tr>
-				<th scope="row">2</th>
-				<td><div></div></td>
-				<td>Evelien Bouilliart</td>
-				<td>10</td>
-				<td>Heelflip</td>
-				<td class="text-success font-weight-bold">Aprobado</td>
-			</tr>
-			<tr>
-				<th scope="row">3</th>
-				<td><div></div></td>
-				<td>Danny Way</td>
-				<td>8</td>
-				<td>Ollie</td>
-				<td class="text-warning font-weight-bold">En revisión</td>
-			</tr>
-		</tbody>
-	</table>
+	<div class="row row-cols-1 row-cols-md-3 g-4">
+		{{#each skaters}}
+			<div class="col">
+				<div class="card">
+					<img
+						src="/img/{{this.foto}}"
+						class="card-img-top"
+						alt="{{this.nombre}}_{{this.apellido}}"
+					/>
+					<div class="card-body">
+						<h5 class="card-title">{{this.nombre}}
+							{{this.apellido}}</h5>
+						<div class="d-flex justify-content-around">
+							<p class="card-text">Especialidad:</p>
+							<p class="card-text">{{this.especialidad}}</p>
+						</div>
+						<div class="d-flex justify-content-around">
+							<p class="card-text">Estado: </p>
+							{{#if this.estado}}
+								<p class="card-text fw-bold text-primary">APROBADO/A</p>
+							{{else}}
+								<p class="card-text fw-bold text-danger">EN REVISIÓN</p>
+							{{/if}}
+						</div>
+						<div class="d-flex justify-content-around">
+							<p class="card-text">Experiencia:</p>
+							<p class="card-text">{{this.anos_experiencia}}
+								años</p>
+						</div>
+						<p class="card-text"><small class="text-muted">cuenta
+								creada el
+								{{this.created_at}}</small></p>
+					</div>
+				</div>
+			</div>
+		{{/each}}
+	</div>
 </div>
-
-<style>
-	tbody tr:nth-child(1) td div{ background-image: url("/img/tony.jpg"); }
-	tbody tr:nth-child(2) td div{ background-image: url("/img/Evelien.jpg"); }
-	tbody tr:nth-child(3) td div{ background-image: url("/img/Danny.jpg"); }
-</style>

@@ -3,7 +3,7 @@ CREATE TABLE skater(
     email VARCHAR(50),
     nombre VARCHAR(25) NOT NULL,
     apellido VARCHAR(25) NOT NULL,
-    password VARCHAR(25) NOT NULL,
+    password VARCHAR(100) NOT NULL,
 	created_on TIMESTAMP NOT NULL,
     anos_experiencia INT NOT NULL,
     especialidad VARCHAR(50) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE skater(
 CREATE TABLE account (
 	user_id serial PRIMARY KEY,
 	username VARCHAR ( 50 ) UNIQUE NOT NULL,
-	password VARCHAR ( 50 ) NOT NULL,
+	password VARCHAR ( 100 ) NOT NULL,
 	email VARCHAR ( 255 ) UNIQUE NOT NULL,
 	created_on TIMESTAMP NOT NULL,
         last_login TIMESTAMP 

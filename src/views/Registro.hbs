@@ -44,32 +44,6 @@
 </div>
 
 <script>
-	{{!-- const form = document.getElementById("form");
-	const btn = document.getElementById("button")
-	btn.addEventListener("click",(e)=>{
-		e.preventDefault();
-		const email = document.getElementById("email").value;
-		const nombre = document.getElementById("fname").value;
-		const apellido = document.getElementById("lname").value;
-		const password_01 = document.getElementById("password_01").value;
-		const password_02 = document.getElementById("password_02").value;
-		const experience = document.getElementById("experience").value;
-		const speciality = document.getElementById("speciality").value;
-		const newSkater = {
-			email: email,
-			nombre: nombre,
-			apellido: apellido,
-			password_01: password_01,
-			password_02: password_02,
-			experience: experience,
-			speciality: speciality
-		}
-		if(password_01!=password_02){
-			alert("Las contraseñas no coinciden, intente nuevamente.");
-		}else{
-			axios.post("/newSkater", newSkater);
-		}
-	}); --}}
 	const form = document.getElementById("form");
 	form.addEventListener("submit",async (e)=>{
 		e.preventDefault();

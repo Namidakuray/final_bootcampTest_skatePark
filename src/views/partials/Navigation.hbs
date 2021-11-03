@@ -14,8 +14,15 @@
 		</button>
 		<div class="collapse navbar-collapse justify-content-between" id="navbarNavAltMarkup">
 			<div class="navbar-nav">
+				{{#unless registered}}
 				<a class="nav-link active" aria-current="page" href="/signup">Registrarse</a>
 				<a class="nav-link" href="/login">Ingresar</a>
+				{{/unless}}
+					{{#if skater}}
+					<a class="nav-link" href="/editAccount/skater/2">Editar cuenta [Skater]</a>
+					{{else}}
+					<a class="nav-link" href="/editAccount/intranet/2">Editar cuenta [Intranet]</a>
+					{{/if}}
 			</div>
             <div><a class="nav-link" href="/intranet">Intranet</a></div>
 		</div>

@@ -10,7 +10,7 @@ gestión y persistencia de datos. */
 const getSkaters = async (pool) => {
 	let queryStatement = {
 		name: "get-skaters",
-		text: "select email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado, from skater ORDER BY id;",
+		text: "select email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater ORDER BY id;",
 	};
 	try {
 		let client = await pool.connect();
@@ -18,32 +18,54 @@ const getSkaters = async (pool) => {
 			const res = await client.query(queryStatement);
 			return res.rows;
 		} catch (error) {
-			console.log("dbCtl.getSkaters error: ", error.stack);
+			return {message: "dbCtl.getSkaters error: ",data: error.stack};
 		} finally {
 			client.release();
 		}
 	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
+		return {message: "error al conectar con la DDBB, error : ",data: error};
 	}
 };
+// GET /skater
+const getSkater = async (pool,id) => {
+	let queryStatement = {
+		name: "get-skater",
+		text: "select email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater WHERE id = $1;",
+		values: [id]
+	};
+	try {
+		let client = await pool.connect();
+		try {
+			const res = await client.query(queryStatement);
+			return res.rows[0];
+		} catch (error) {
+			return {message: "dbCtl.getSkater error",data: error.stack};
+		} finally {
+			client.release();
+		}
+	} catch (error) {
+		return {message: "error al conectar con la DDBB, error : ",data: error};
+	}
+};
+
 // POST /skater
 const insertSkater = async (pool, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado) => {
-	let created_on = tools.getStringDate();
+	let created_at = tools.getStringDate();
 	let queryStatement = {
-		text: "INSERT INTO skater (email, nombre, apellido, password, created_on, anos_experiencia, especialidad, puntaje, foto, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *",
-		values: [email, nombre, apellido, password, created_on, anos_experiencia, especialidad, puntaje, foto, estado],
+		text: "INSERT INTO skater (email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *",
+		values: [email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado],
 	};
 	try {
 		let client = await pool.connect();
 		try {
 			const res = await client.query(queryStatement);
 			client.release();
-			console.log("Cuenta skater creada satisfactoriamente :", res.rows[0]);
+			return {status:true,message:"Cuenta skater creada satisfactoriamente :", data: res.rows[0]};
 		} catch (error) {
-			console.log("error: ", error.stack);
+			return {status:false,message:"error al intentar crear cuenta",data: error.stack};
 		}
 	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
+		return {status:false,message: "error al conectar con la DDBB, error : ",data: error};
 	}
 };
 // PUT /skater
@@ -92,6 +114,7 @@ const deleteAcc = async (pool, id) => {
 
 module.exports = {
 	getSkaters,
+	getSkater,
 	insertSkater,
 	editSkater,
 	deleteAcc

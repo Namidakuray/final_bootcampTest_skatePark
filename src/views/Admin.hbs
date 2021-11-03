@@ -3,6 +3,7 @@
 	<hr class="w-50" />
 	<div class="d-flex justify-content-between">
 		<button class="btn btn-success" onclick="createTables();">Crear tablas</button>
+		<button class="btn btn-info" onclick="insertSkater();">Insertar skater</button>
 		<button class="btn btn-danger" onclick="deleteTables();">Eliminar tablas</button>
 	</div>
 
@@ -48,11 +49,21 @@
 
 <script>
 	const createTables=async ()=>{
-		await axios.get("/admin/createTables");
-		console.log("createTables is working");
+		let resp = await axios.get("/admin/createTables");
+		if(resp.data){
+			alert("Tablas listas para ser utilizadas")
+		}else{alert("Ah ocurrido un error al intentar crear las tablas")}
 		};
 	const deleteTables=async ()=>{ 
-		await axios.get("/admin/deleteTables");
-		console.log("deleteTables is working");
+		let resp = await axios.get("/admin/deleteTables");
+		if(resp.data){
+			alert("Tablas eliminadas con éxito.")
+		}else{alert("Error al intentar eliminar las tablas.")}
+	};
+	const insertSkater=async()=>{
+		let resp = await axios.get("/admin/insertSkater");
+		if(resp.data.status==true){
+			alert(resp.data.message)
+		}else{alert(resp.data.message)}
 	}
 </script>

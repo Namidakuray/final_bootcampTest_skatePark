@@ -1,3 +1,5 @@
+const tools = require('../middleware/tools');
+const axios = require('axios');
 require("dotenv").config();
 /* Se capturan los posibles errores que puedan ocurrir a través de bloques catch o
 parámetros de funciones callbacks para condicionar las funciones del servidor. */
@@ -17,7 +19,7 @@ const createTables = async (pool) => {
 				await client.query(queryTester_01);
 				console.log("Ya existe la tabla skater");
 			} catch (error) {
-				const skaterTable = `CREATE TABLE skater (id SERIAL, email VARCHAR(50), nombre VARCHAR(25) NOT NULL, apellido VARCHAR(25) NOT NULL, password VARCHAR(25) NOT NULL, created_on TIMESTAMP NOT NULL, anos_experiencia INT NOT NULL, especialidad VARCHAR(50) NOT NULL, puntaje FLOAT, foto VARCHAR(255) NOT NULL, estado BOOLEAN NOT NULL, PRIMARY KEY (email))`;
+				const skaterTable = `CREATE TABLE skater (id SERIAL, email VARCHAR(50), nombre VARCHAR(25) NOT NULL, apellido VARCHAR(25) NOT NULL, password VARCHAR(100) NOT NULL, created_at DATE NOT NULL, anos_experiencia INT NOT NULL, especialidad VARCHAR(50) NOT NULL, puntaje FLOAT, foto VARCHAR(255) NOT NULL, estado BOOLEAN NOT NULL, PRIMARY KEY (email))`;
 				await client.query(skaterTable);
 				console.log("tabla skater creada con exito");
 			}
@@ -26,7 +28,7 @@ const createTables = async (pool) => {
 				await client.query(queryTester_02);
 				console.log("Ya existe la tabla account");
 			} catch (error) {
-				const accountTable = `CREATE TABLE account (user_id serial PRIMARY KEY, username VARCHAR ( 50 ) UNIQUE NOT NULL, password VARCHAR ( 50 ) NOT NULL, email VARCHAR ( 255 ) UNIQUE NOT NULL, created_on TIMESTAMP NOT NULL, last_login TIMESTAMP)`;
+				const accountTable = `CREATE TABLE account (user_id serial PRIMARY KEY, username VARCHAR ( 50 ) UNIQUE NOT NULL, password VARCHAR ( 100 ) NOT NULL, email VARCHAR ( 255 ) UNIQUE NOT NULL, created_at TIMESTAMP NOT NULL, last_login TIMESTAMP)`;
 				await client.query(accountTable);
 				console.log("tabla account creada con exito");
 			}
@@ -49,11 +51,14 @@ const createTables = async (pool) => {
 				console.log("tabla account_rol creada con exito");
 			}
 			console.log("DDBB lista para ser utilizada");
+			return true;
 		} catch (error) {
 			console.log("error al crear las tablas, error : ", error);
+			return false;
 		}
 	} catch (error) {
 		console.log("error al conectar con la DDBB, error : ", error);
+		return false;
 	}
 };
 const deleteTables = async (pool) => {
@@ -63,21 +68,68 @@ const deleteTables = async (pool) => {
 		try {
 			await client.query("BEGIN");
 			await client.query(`DROP TABLE skater`);
-			await client.query(`DROP TABLE account`);
-			await client.query(`DROP TABLE rol`);
 			await client.query(`DROP TABLE account_rol`);
+			await client.query(`DROP TABLE rol`);
+			await client.query(`DROP TABLE account`);
 			await client.query("COMMIT");
 			client.release();
+			let imgNames=tools.filesList();
+			tools.arrfilesDelete(imgNames);		
 			console.log("Tablas eliminadas con éxito.");
+			return true;
 		} catch (error) {
-			console.log("error al intentar eliminar la tablas ", error.code);
+			console.log("error al intentar eliminar la tablas ", error);
+			return false;
 		}
 	} catch (error) {
 		console.log("error al conectar con la DDBB, error : ", error);
+		return false;
 	}
 };
+const insertSkater = async (pool) => {
+	let resp = await axios("https://randomuser.me/api/");
+	let data = resp.data.results[0];
+	let pictureUrl= data.picture.medium;
+	let pictureExt=pictureUrl.split("/")[ pictureUrl.split("/").length - 1].split('.')[1];
+	let picture = await axios(pictureUrl);
+	let especialidad = ["SLALOM","DOWNHILL","FREESTYLE"];
+	let index = (function getRandomInt() {
+		return Math.floor(Math.random() * (especialidad.length - 0)) + 0;
+	})();
+	let imgTag = `${tools.creatUuid()}.${pictureExt}`
+	await tools.downloadImgByLink(pictureUrl,`${__dirname}/../public/img/${imgTag}`);
 
+	let newSkater = {
+		email: data.email,
+		nombre: data.name.first,
+		apellido: data.name.last,
+		password: data.login.password,
+		created_at: data.registered.date.split("T")[0],
+		anos_experiencia: data.registered.age,
+		especialidad: especialidad[index],
+		puntaje: 0,
+		foto: imgTag,
+		estado: false
+	}
+	let queryStatement = {
+		text: "INSERT INTO skater (email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *",
+		values: [newSkater.email, newSkater.nombre, newSkater.apellido, newSkater.password, newSkater.created_at, newSkater.anos_experiencia, newSkater.especialidad, newSkater.puntaje, newSkater.foto, newSkater.estado],
+	};
+	try {
+		let client = await pool.connect();
+		try {
+			const res = await client.query(queryStatement);
+			client.release();
+			return {status:true,message:"Cuenta skater creada satisfactoriamente", response: res.rows[0]};
+		} catch (error) {
+			return {status:false,message:"error al intentar crear cuenta",response: error.stack};
+		}
+	} catch (error) {
+		return {status:false,message: "error al conectar con la DDBB.",response: error};
+	}
+}
 module.exports = {
 	createTables,
 	deleteTables,
+	insertSkater
 };

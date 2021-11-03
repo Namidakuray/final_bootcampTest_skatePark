@@ -1,9 +1,9 @@
 const app = require('../app');
-const { Pool, types } = require("pg");
+const pg = require("pg");
 require('dotenv').config();
 
 /* Se configura el parseo de pg desde los Obj(Date) a String */
-types.setTypeParser(1082, (stringValue)=>{
+pg.types.setTypeParser(1082, function(stringValue) {
     return stringValue; //1082 for date type
 });
 
@@ -23,7 +23,7 @@ const config = {
 const Singleton = (function () {
     let instance;
     function createInstance() {
-        var classObj = new Pool(config);
+        var classObj = new pg.Pool(config);
         return classObj;
     }
 

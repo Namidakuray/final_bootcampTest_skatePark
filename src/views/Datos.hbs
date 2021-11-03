@@ -8,34 +8,34 @@
 		<div class="form-group row w-50 m-auto">
 			<div class="form-group col-12 col-sm-6">
 				<label for="email">Email:</label><br />
-				<input type="email" name="email" value="{{resp.email}}" placeholder="asd@asd.com" class="form-control m-auto"/>
+				<input type="email" name="email" data-id="{{id}}" value="{{resp.email}}" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="fname">Nombre:</label><br />
-				<input type="text" name="fname" value="{{resp.nombre}}" placeholder="John" class="form-control m-auto"/>
+				<input type="text" name="fname" value="{{resp.nombre}}" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="lname">Apellido:</label><br />
-				<input type="text" name="lname" value="{{resp.apellido}}" placeholder="Smith" class="form-control m-auto"/>
+				<input type="text" name="lname" value="{{resp.apellido}}" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="last_password">Password:</label><br />
-				<input type="password" name="last_password" placeholder="****" class="form-control m-auto"/>
+				<input type="password" name="last_password" data-pass="{{resp.password}}" id="password" class="form-control m-auto"/>
 			</div>			<div class="form-group col-12 col-sm-6">
 				<label for="password_01">Nueva Password:</label><br />
-				<input type="password" name="password_01" placeholder="****" class="form-control m-auto"/>
+				<input type="password" name="password_01" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="password_02">Repita la nueva password:</label><br />
-				<input type="password" name="password_02" placeholder="****" class="form-control m-auto"/>
+				<input type="password" name="password_02" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="experience">Años de experiencia:</label><br />
-				<input type="number" name="experience" value="{{resp.anos_experiencia}}" placeholder="05" class="form-control m-auto"/>
+				<input type="number" name="experience" value="{{resp.anos_experiencia}}" class="form-control m-auto"/>
 			</div>
 			<div class="form-group col-12 col-sm-6">
 				<label for="speciality">Especialidad:</label><br />
-				<input type="text" name="speciality" value="{{resp.especialidad}}" placeholder="Kickflip" class="form-control m-auto"/>
+				<input type="text" name="speciality" value="{{resp.especialidad}}" class="form-control m-auto"/>
 			</div>
 		</div>
 		<button type="submit" class="btn btn-info mb-3">Actualizar información</button>
@@ -45,24 +45,69 @@
 
 <script>
 	const form = document.getElementById("form");
+	const btnDelete = document.getElementById("button");
 	form.addEventListener("submit",async (e)=>{
 		e.preventDefault();
+		let accId = form.elements["email"].getAttribute("data-id");
+		let dbPass = form.elements["last_password"].getAttribute("data-pass");
+		const pass_probe = form.elements["last_password"].value;
 		const password_01 = form.elements["password_01"].value;
 		const password_02 = form.elements["password_02"].value;
 		if(password_01!=password_02){
 			alert("Las contraseñas no coinciden, intente nuevamente.");
-		}else{
-			let dataResponse={
+		}else if(pass_probe.length==0){
+			let dataRequest={
 				email: form.elements["email"].value,
 				fname: form.elements["fname"].value,
 				lname: form.elements["lname"].value,
-				last_password: form.elements["last_password"].value,
-				password_01: form.elements["password_01"].value,
-				password_02: form.elements["password_02"].value,
+				last_password: dbPass,
 				experience: form.elements["experience"].value,
 				speciality: form.elements["speciality"].value,
 			}
-			await axios.put("/editAccount/skater/2", dataResponse);
+			let response=await axios.put(`/editAccount/skater/${accId}`, dataRequest);
+			alert(response.data.message)
+		}else if(password_01.length<5){
+			alert("La nueva contraseña debe contener a lo menos 5 carácteres.");
+		}else{
+			let dataRequest={
+				email: form.elements["email"].value,
+				fname: form.elements["fname"].value,
+				lname: form.elements["lname"].value,
+				pass_probe: pass_probe,
+				password_01: password_01,
+				password_02: password_02,
+				experience: form.elements["experience"].value,
+				speciality: form.elements["speciality"].value,
+			};
+			let response =await axios.put(`/editAccount/skater/${accId}`, dataRequest);
+			alert(response.data.message)
+		};
+	});
+	btnDelete.addEventListener("click",async (e)=>{
+		e.preventDefault();
+		let accId = form.elements["email"].getAttribute("data-id");
+		let dbPass = form.elements["last_password"].getAttribute("data-pass");
+		let pass_probe = document.getElementById("password").value;
+		try{
+			let dataRequest={
+				accId,
+				dbPass,
+				pass_probe
+			};
+			if(dataRequest.pass_probe.length>0){
+			let response = await axios.delete(`/delete/skater/`, {
+				{{!-- headers: {
+					Authorization: authorizationToken
+				}, --}}
+				data: {
+					source: dataRequest
+				}
+				});
+			alert(response.data.message);
+			setTimeout(()=>{window.location.replace("http://localhost:3000/");},2000);
+			}else{alert("Debe ingresar su password para eliminar la cuenta")}
+		}catch(err){
+			console.log(err)
 		}
 	})
 </script>

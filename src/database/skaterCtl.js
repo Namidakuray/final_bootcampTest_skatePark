@@ -60,12 +60,12 @@ const insertSkater = async (pool, email, nombre, apellido, password, anos_experi
 		try {
 			const res = await client.query(queryStatement);
 			client.release();
-			return {status:true,message:"Cuenta skater creada satisfactoriamente :", data: res.rows[0]};
+			return {status:true,message:"Cuenta skater creada satisfactoriamente", dbResponse: res.rows[0]};
 		} catch (error) {
-			return {status:false,message:"error al intentar crear cuenta",data: error.stack};
+			return {status:false,message:"error al intentar crear cuenta",dbResponse: error.stack};
 		}
 	} catch (error) {
-		return {status:false,message: "error al conectar con la DDBB, error : ",data: error};
+		return {status:false,message: "error al conectar con la DDBB",dbResponse: error};
 	}
 };
 // PUT /skater
@@ -79,12 +79,12 @@ const editSkater = async (pool, id, email, nombre, apellido, password, anos_expe
 		try {
 			const res = await client.query(queryStatement);
 			client.release();
-			console.log("Cuenta skater editada satisfactoriamente :", res.rows[0]);
+			return { status:true,message:"Cuenta skater editada satisfactoriamente", dbResponse: res.rows[0]};
 		} catch (error) {
-			console.log("error: ", error.stack);
+			return { status:false,message:"error al intentar editar cuenta", dbResponse: error.stack};
 		}
 	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
+		return { status:false,message:"error al conectar con la DDBB", dbResponse: error};
 	}
 };
 // DELETE /skater
@@ -100,15 +100,15 @@ const deleteAcc = async (pool, id) => {
 			const res = await client.query(queryStatement);
 			client.release();
 			if (res.rows[0]) {
-				console.log(res.rows[0]);
+				return {message: "Skater eliminado exitosamente",dbResponse: res.rows[0]};
 			} else {
-				console.log("el skater no existe");
+				return {message: "el skater no existe"};
 			}
 		} catch (error) {
-			console.log("error al intentar eliminar la cuenta skater ", error.stack);
+			return {message: "error al intentar eliminar la cuenta skater ",dbResponse: error.stack};
 		}
 	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
+		return {message: "error al conectar con la DDBB",dbResponse: error};
 	}
 };
 

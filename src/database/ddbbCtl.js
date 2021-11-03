@@ -89,21 +89,21 @@ const deleteTables = async (pool) => {
 const insertSkater = async (pool) => {
 	let resp = await axios("https://randomuser.me/api/");
 	let data = resp.data.results[0];
-	let pictureUrl= data.picture.medium;
+	let pictureUrl= data.picture.large;
 	let pictureExt=pictureUrl.split("/")[ pictureUrl.split("/").length - 1].split('.')[1];
-	let picture = await axios(pictureUrl);
 	let especialidad = ["SLALOM","DOWNHILL","FREESTYLE"];
 	let index = (function getRandomInt() {
 		return Math.floor(Math.random() * (especialidad.length - 0)) + 0;
 	})();
 	let imgTag = `${tools.creatUuid()}.${pictureExt}`
 	await tools.downloadImgByLink(pictureUrl,`${__dirname}/../public/img/${imgTag}`);
-
+	let pass=data.name.last
+	let hash=tools.createHash(pass)
 	let newSkater = {
 		email: data.email,
 		nombre: data.name.first,
 		apellido: data.name.last,
-		password: data.login.password,
+		password: hash,
 		created_at: data.registered.date.split("T")[0],
 		anos_experiencia: data.registered.age,
 		especialidad: especialidad[index],

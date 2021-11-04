@@ -3,19 +3,84 @@
 <div class="py-5">
 	<h2>Iniciar Sesión</h2>
 	<hr class="w-50" />
-
-	<form>
-		<div class="form-group">
-			<div class="form-group">
-				<label>Email</label>
-				<input class="form-control w-50 m-auto" />
+	<form id="form" method="post" action="">
+		<div id="checkboxs" class="form-check d-flex justify-content-around">
+			<div class="form-check">
+				<input class="form-check-input" type="radio" name="typeUser" id="flexRadioDefault2" checked>
+				<label class="form-check-label" for="flexRadioDefault2">
+					Skater
+				</label>
 			</div>
-			<div class="form-group">
-				<label>Password</label>
-				<input class="form-control w-50 m-auto" />
+			<div class="form-check">
+				<input class="form-check-input" type="radio" name="typeUser" id="flexRadioDefault1">
+				<label class="form-check-label" for="flexRadioDefault1">
+					Intranet
+				</label>
 			</div>
 		</div>
-		<button class="btn btn-success mb-3">Ingresar</button>
-		<p>¿Aún no tienes cuenta? <a href="#">Regístrate</a></p>
+		<div class="mb-3">
+			<label for="exampleInputEmail1" class="form-label">Email address</label>
+			<input
+				type="email"
+				name="email"
+				class="form-control"
+				id="exampleInputEmail1"
+				aria-describedby="emailHelp"
+			/>
+			<div id="emailHelp" class="form-text">We'll never share your email
+				with anyone else.</div>
+		</div>
+		<div class="mb-3">
+			<label
+				for="exampleInputPassword1"
+				class="form-label"
+			>Password</label>
+			<input
+				type="password"
+				name="password"
+				class="form-control"
+				id="exampleInputPassword1"
+			/>
+		</div>
+		<div class="mb-3 form-check">
+			<input
+				type="checkbox"
+				name="politicas"
+				class="form-check-input"
+				id="exampleCheck1"
+				required
+			/>
+			<label class="form-check-label" for="exampleCheck1">Políticas de uso</label>
+		</div>
+		<button type="submit" class="btn btn-primary">Ingresar</button>
 	</form>
+	<div>
+		<p>¿Aún no tienes cuenta?</p>
+		<button class="btn btn-info" id="btnRegistro">Regístrate</button>
+	</div>
+
 </div>
+<script>
+	const form=document.getElementById("form")
+	const btnRegister=document.getElementById("btnRegistro")
+	btnRegister.addEventListener("click",(e)=>{ 
+		e.preventDefault();
+		let skater=form.elements["typeUser"][0].checked;
+		if(skater){
+			window.location.replace("http://localhost:3000/signup");
+		}
+		console.log("skater: ",type);
+	})
+	form.addEventListener("submit",(e)=>{
+		e.preventDefault()
+		let skater=form.elements["typeUser"][0].checked;
+		if(skater){
+			form.setAttribute("action", "login/skater")
+			form.submit();
+		}else{
+			form.setAttribute("action", "login/intranet")
+			console.log("intranet: ",skater);	
+			console.log("intranet action: ",form.getAttribute("action"));
+		}
+	})
+</script>

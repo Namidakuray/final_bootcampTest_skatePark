@@ -6,7 +6,7 @@ const skaterCtl = require("../database/skaterCtl");
 const tools = require('../middleware/tools');
 
 
-router.post("/signup", async (req, res) => {
+router.post("/signup/skater", async (req, res) => {
   let { img } = req.files;
   let newSkater = req.body;
   if (!newSkater){
@@ -32,16 +32,31 @@ router.post("/signup", async (req, res) => {
             console.log("Img cargada exitosamente.");
           });
       };
-      res.status(301).redirect("/");
+      res.status(301).redirect("/?type=skater");
     } catch (error) {
       res.status(500).json({ message: "No se ha podido concretar el registro", data: error});
     };
   }
 });
-router.get("/editAccount/skater/:id", async (req, res) => {
-  let {id} = req.params;
-  let resp = await skaterCtl.getSkater(pool,id);
-  res.render("Datos", {resp, skater: true, registered: true, id:id});
+router.use("/login/skater",async(req,res,next)=>{
+  let {email}=req.body;
+  let resp = await skaterCtl.getSkater(pool,email,"email");
+  tools.createTokenAcces(req,res,next,resp,"skater");
+})
+router.post("/login/skater",async(req, res)=>{
+  let token = req.token;
+  res.redirect(`/?token=${token}`);
+})
+router.get("/editAccount/skater/:id/:token", async (req, res) => {
+  let {id,token} = req.params;
+  //console.log(token)
+  let response = await tools.verifyToken(res,token)
+  console.log(response)
+  if(response){
+    let resp = await skaterCtl.getSkater(pool,id);
+    let skater = resp;
+    res.render("Datos", {skater, token, id:id});
+  }else{res.redirect("/loging")}
 });
 router.put("/editAccount/skater/:id", async (req, res)=>{
   let {id} = req.params;

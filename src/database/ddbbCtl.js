@@ -28,7 +28,7 @@ const createTables = async (pool) => {
 				await client.query(queryTester_02);
 				console.log("Ya existe la tabla account");
 			} catch (error) {
-				const accountTable = `CREATE TABLE account (user_id serial PRIMARY KEY, username VARCHAR ( 50 ) UNIQUE NOT NULL, password VARCHAR ( 100 ) NOT NULL, email VARCHAR ( 255 ) UNIQUE NOT NULL, created_at TIMESTAMP NOT NULL, last_login TIMESTAMP)`;
+				const accountTable = `CREATE TABLE account (user_id serial PRIMARY KEY, username VARCHAR ( 50 ) UNIQUE NOT NULL, apellido VARCHAR ( 50 ) UNIQUE NOT NULL, password VARCHAR ( 100 ) NOT NULL, email VARCHAR ( 255 ) UNIQUE NOT NULL, created_at TIMESTAMP NOT NULL, last_login TIMESTAMP)`;
 				await client.query(accountTable);
 				console.log("tabla account creada con exito");
 			}

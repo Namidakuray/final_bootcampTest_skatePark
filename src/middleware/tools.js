@@ -3,7 +3,61 @@ const fs = require("fs");
 const axios = require('axios');
 const { v4: uuidv4 } = require("uuid");
 const saltRounds = Number(process.env.SALT_ROUNDS);
+const jwt = require('jsonwebtoken');
+const secretKey = uuidv4();
 
+const createTokenAcces = async (req, res, next, user, userType)=>{
+    let { password } = req.body;
+	let userData;
+	let matchPass= await compareHash(password, user.password);
+	if(userType=="skater"){
+		userData={
+			id:user.id,
+			email:user.email,
+			role:1
+		}
+	};
+	if(userType=="intranet"){
+		userData={
+			id:user.user_id,
+			email:user.email,
+			userRole:user.role_name,
+			role:2
+		}
+	};
+    if (matchPass) {
+		const token = jwt.sign(
+			{
+			exp: Math.floor(Date.now() / 1000) + 180,
+			payload: userData,
+			},
+			secretKey
+		);
+		req.token = token;
+		next();
+	} else {
+		res.status(401).send({
+		error: "La password ingresada no coincide con nuestros registros.",
+		code: 401,
+		});
+	};
+};
+const verifyToken= async (res,token)=>{
+	return jwt.verify(token, secretKey,async (err, decoded) => {
+		if (err){
+			res.status(401).send(
+				res.send({
+					error: "401 Unauthorized",
+					message: "Usted no está autorizado para estar aquí",
+					token_error: err.message,
+				})
+			)
+		}else{
+			let {payload} = await decoded;
+			return payload;
+		}
+    });
+}
 const filesList = () => {
 	let list = [];
 	fs.readdirSync(`${__dirname}/../public/img/`).forEach((fileName) => {
@@ -58,6 +112,8 @@ module.exports = {
 	getBiteToMB,
 	createHash,
 	compareHash,
+	createTokenAcces,
+	verifyToken,
 	creatUuid,
 	filesList,
 	arrfilesDelete,

@@ -15,7 +15,8 @@ CREATE TABLE skater(
 /* Creditos a https://www.postgresqltutorial.com/postgresql-create-table/ */
 CREATE TABLE account (
 	user_id serial PRIMARY KEY,
-	username VARCHAR ( 50 ) UNIQUE NOT NULL,
+	nombre VARCHAR ( 50 ) UNIQUE NOT NULL,
+    apellido VARCHAR ( 50 ) UNIQUE NOT NULL,
 	password VARCHAR ( 100 ) NOT NULL,
 	email VARCHAR ( 255 ) UNIQUE NOT NULL,
 	created_on TIMESTAMP NOT NULL,

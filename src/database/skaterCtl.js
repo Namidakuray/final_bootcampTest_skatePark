@@ -27,11 +27,21 @@ const getSkaters = async (pool) => {
 	}
 };
 // GET /skater
-const getSkater = async (pool,id) => {
+const getSkater = async (pool,target,findBy) => {
+	let queryText;
+	let queryName;
+	if (findBy=="id" || findBy==undefined){
+		queryText="select id, email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater WHERE id = $1;";
+		queryName="get-skater-by-id"
+	}
+	if (findBy=="email"){
+		queryText="select id, email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater WHERE email = $1;"
+		queryName="get-skater-by-email"
+	}
 	let queryStatement = {
-		name: "get-skater",
-		text: "select email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater WHERE id = $1;",
-		values: [id]
+		name: queryName,
+		text: queryText,
+		values: [target]
 	};
 	try {
 		let client = await pool.connect();
@@ -71,7 +81,7 @@ const insertSkater = async (pool, email, nombre, apellido, password, anos_experi
 // PUT /skater
 const editSkater = async (pool, id, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado) => {
 	let queryStatement = {
-		text: "UPDATE skater SET email=$2, nombre=$3, apellido=$4, password=$5, anos_experiencia=$6, especialidad=$7, puntaje=$8, foto=$9, estado=$10 WHERE id = $1 RETURNING *;",
+		text: "UPDATE skater SET nombre=$3, apellido=$4, password=$5, anos_experiencia=$6, especialidad=$7, puntaje=$8, foto=$9, estado=$10 WHERE id = $1 RETURNING *;",
 		values: [id, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado],
 	};
 	try {

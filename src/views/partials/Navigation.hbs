@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 	<div class="container-fluid">
-		<a class="navbar-brand" href="/">SkatePark</a>
+		<a id="home" class="navbar-brand" href="/">SkatePark</a>
 		<button
 			class="navbar-toggler"
 			type="button"
@@ -14,17 +14,49 @@
 		</button>
 		<div class="collapse navbar-collapse justify-content-between" id="navbarNavAltMarkup">
 			<div class="navbar-nav">
-				{{#unless registered}}
+				{{#unless token}}
 				<a class="nav-link active" aria-current="page" href="/signup">Registrarse</a>
 				<a class="nav-link" href="/login">Ingresar</a>
 				{{/unless}}
-					{{#if skater}}
-					<a class="nav-link" href="/editAccount/skater/2">Editar cuenta [Skater]</a>
-					{{else}}
-					<a class="nav-link" href="/editAccount/intranet/2">Editar cuenta [Intranet]</a>
-					{{/if}}
+				{{#if skater}}
+				<a class="nav-link" id="skaterLink" href="" >Editar cuenta [Skater]</a>
+				{{/if}}
+				{{#if intranet}}
+				<a class="nav-link" id="intranetLink" href="">Editar cuenta [Intranet]</a>
 			</div>
             <div><a class="nav-link" href="/intranet">Intranet</a></div>
+				{{else}}
+			</div>
+				{{/if}}
 		</div>
 	</div>
 </nav>
+
+<script>
+	let skaterLink=document.getElementById("skaterLink")
+	let intranetLink=document.getElementById("intranetLink")
+	let tokenTemp = `{{token}}`.split("=")[0];
+	let tokenSaved = sessionStorage.getItem('token').replaceAll('"',"");
+	if(tokenTemp.length>10&&tokenSaved!=tokenTemp){
+		alert(`Autenticado con éxito! Tu token está en SessionStorage`)
+		sessionStorage.setItem('token', JSON.stringify(tokenTemp))
+		tokenSaved = sessionStorage.getItem('token').replaceAll('"',"");
+	}
+	console.log("sessionStorage.token: ",tokenSaved)
+	console.log("handlebars.token: ",tokenTemp)
+	console.log(tokenSaved==tokenTemp);
+	if(tokenSaved==tokenTemp){
+		let url = `/?token=${tokenSaved}`;
+		document.getElementById("home").setAttribute("href",url)
+	}
+	if(skaterLink){
+		let url = `/editAccount/skater/{{skater.id}}/${tokenSaved}`;
+		skaterLink.setAttribute('href',url)
+	}
+	if(intranetLink){
+		skaterLink.addEventListener("click",(e)=>{
+			e.preventDefault();
+		})
+	};
+
+</script>

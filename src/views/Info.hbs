@@ -1,0 +1,38 @@
+<div class="py-5">
+	<h2>Ah ocurrido un error</h2>
+	<hr class="w-50" />
+    {{#if dataError}}
+    <div class="card">
+        <div class="card-header">
+            Upps, lo sentimos!
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{dataError.error}}</h5>
+            <p class="card-text">{{dataError.message}}</p>
+            {{#if dataError.default_error}}
+            <br>
+            <p>Detalle: {{dataError.default_error}}</p>
+            {{/if}}
+        </div>
+    </div>
+    {{/if}}
+    {{#if dataResponse}}
+    <div class="card">
+        <div class="card-header">
+            En hora buena
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{dataResponse.title}}</h5>
+            <p class="card-text">{{dataResponse.message}}</p>
+        </div>
+    </div>
+    {{/if}}
+</div>
+
+<script>
+    {{#if token}}
+    (setTimeout(()=>{window.location.replace("/?token={{token}}");},2000))()
+    {{else}}
+    (setTimeout(()=>{window.location.replace("/");},2000))()
+    {{/if}}
+</script>

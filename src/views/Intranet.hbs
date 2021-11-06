@@ -1,21 +1,68 @@
-<h1>Skate Park</h1>
-
-<div class="py-5">
-	<h2>Iniciar Sesión</h2>
+<div class="py-4">
+	{{#if intranet}}
+	<h2>Dashboard colaboradores</h2>
+	{{else}}
+	<h2>Dashboard gestión skaters</h2>
+	{{/if}}
 	<hr class="w-50" />
-
-	<form>
-		<div class="form-group">
-			<div class="form-group">
-				<label>Email</label>
-				<input class="form-control w-50 m-auto" />
-			</div>
-			<div class="form-group">
-				<label>Password</label>
-				<input class="form-control w-50 m-auto" />
-			</div>
-		</div>
-		<button class="btn btn-success mb-3">Ingresar</button>
-		<p>¿Aún no tienes cuenta? <a href="#">Regístrate</a></p>
-	</form>
+	<table class="table w-50 m-auto">
+		<thead>
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Imágen</th>
+				<th scope="col">Nombre</th>
+				<th scope="col">Apellido</th>
+				<th scope="col">email</th>
+				<th scope="col">Fecha ingreso</th>
+				<th scope="col">Años de experiencia</th>
+				<th scope="col">Especialidad</th>
+				<th scope="col">Puntaje</th>
+				<th scope="col">Estado</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each skaters}}
+			<tr>
+				<th scope="row">{{@index}}</th>
+				<td><div><img src="/img/{{this.foto}}" alt="{{this.nombre}}_{{this.apellido}}"></div></td>
+				<td>{{this.nombre}}</td>
+				<td>{{this.apellido}}</td>
+				<td>{{this.email}}</td>
+				<td>{{this.created_at}}</td>
+				<td>{{this.anos_experiencia}}</td>
+				<td>{{this.especialidad}}</td>
+				<td><input data-userId="{{this.id}}" placeholder="{{this.puntaje}}" type="number" id="puntaje"></td>
+				<td><input class="checkboxs_{{this.id}}" data-state="{{this.estado}}" value="" type="checkbox" /></td>
+				<td class="buttons">
+					<div>
+					<button onclick="deleteSkater({{this.id}})" type="button" class="btn btn-danger buttonDelete"> Eliminar </button>
+					<button data-skaterId="{{this.id}}" type="button" class="btn btn-warning buttonUpdate">Evaluar </button>
+					</div>
+				</td>
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
 </div>
+
+
+<script>
+	let checkboxs = document.getElementsByClassName("buttonDelete");
+	console.log(checkboxs);
+	const deleteSkater=async(id)=>{
+		try{
+			let resp = await axios.delete(`/intranet/deleteSkater/${id}/{{token}}`)
+			console.log(resp.data)
+			alert(resp.data.message)
+			location.reload();
+		}catch(err){
+			console.log(err)
+			alert("Ah ocurrido un error con el servidor")
+		}
+	}
+	for(let item of checkboxs){
+		if(item.dataset.state=="true"){
+			item.checked=true;
+		}else{item.checked=false};
+		};
+</script>

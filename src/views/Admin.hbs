@@ -11,53 +11,42 @@
 		<thead>
 			<tr>
 				<th scope="col">#</th>
-				<th scope="col">Foto</th>
 				<th scope="col">Nombre</th>
-				<th scope="col">Años de experiencia</th>
-				<th scope="col">Especialidad</th>
-				<th scope="col">Estado</th>
+				<th scope="col">Apellido</th>
+				<th scope="col">email</th>
+				<th scope="col">Fecha ingreso</th>
+				<th scope="col">Terreno</th>
 			</tr>
 		</thead>
+			{{#each admin}}
 		<tbody>
 			<tr>
-				<th scope="row">1</th>
-				<td><div></div></td>
-				<td>Tony Hawk</td>
-				<td>12</td>
-				<td>Kickflip</td>
-				<td><input type="checkbox" checked /></td>
-			</tr>
-			<tr>
-				<th scope="row">2</th>
-				<td><div></div></td>
-				<td>Evelien Bouilliart</td>
-				<td>10</td>
-				<td>Heelflip</td>
-				<td><input type="checkbox" checked /></td>
-			</tr>
-			<tr>
-				<th scope="row">3</th>
-				<td><div></div></td>
-				<td>Danny Way</td>
-				<td>8</td>
-				<td>Ollie</td>
-				<td><input type="checkbox" /></td>
+				<th scope="row">{{@index}}</th>
+				<td>{{this.nombre}}</td>
+				<td>{{this.apellido}}</td>
+				<td>{{this.email}}</td>
+				<td>{{this.created_at}}</td>
+				<td><input class="checkboxs" data-state="{{this.estado}}" value="" onclick="changeState({{this.user_id}},{{this.estado}})" value="{{this.estado}}" type="checkbox" /></td>
 			</tr>
 		</tbody>
+			{{/each}}
 	</table>
 </div>
 
 <script>
+	let checkboxs = document.getElementsByClassName("checkboxs");
 	const createTables=async ()=>{
 		let resp = await axios.get("/admin/createTables");
 		if(resp.data){
 			alert("Tablas listas para ser utilizadas")
+			location.reload()
 		}else{alert("Ah ocurrido un error al intentar crear las tablas")}
 		};
 	const deleteTables=async ()=>{ 
 		let resp = await axios.get("/admin/deleteTables");
 		if(resp.data){
 			alert("Tablas eliminadas con éxito.")
+			location.reload()
 		}else{alert("Error al intentar eliminar las tablas.")}
 	};
 	const insertSkater=async()=>{
@@ -65,5 +54,21 @@
 		if(resp.data.status==true){
 			alert(resp.data.message)
 		}else{alert(resp.data.message)}
+	};
+	const changeState=async(id,state)=>{
+		console.log(state);
+		try{
+			let resp = await axios.put(`/intranet/changeState/${id}/${state}`,{token:`{{token}}`})
+			alert(resp.data)
+			location.reload();
+		}catch(err){
+			console.log(err)
+			alert("Ah ocurrido un error con el servidor")
+		}
 	}
+	for(let item of checkboxs){
+		if(item.dataset.state=="true"){
+			item.checked=true;
+		}else{item.checked=false};
+		};
 </script>

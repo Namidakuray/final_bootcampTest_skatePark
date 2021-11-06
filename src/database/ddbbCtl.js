@@ -7,6 +7,7 @@ parámetros de funciones callbacks para condicionar las funciones del servidor. 
 /* Creación de las tablas a utilizar */
 const createTables = async (pool) => {
 	try {
+		let created_at = tools.getStringDate();
 		let client = await pool.connect();
 		//Tables's probes or creates them
 		try {
@@ -14,6 +15,32 @@ const createTables = async (pool) => {
 			let queryTester_02 = { text: `SELECT * FROM account` };
 			let queryTester_03 = { text: `SELECT * FROM rol` };
 			let queryTester_04 = { text: `SELECT * FROM account_rol` };
+			let adminHash=tools.createHash(process.env.ADMIN_PASS);
+			let colabHash=tools.createHash(process.env.COLAB_PASS);
+			let insertAdmin={
+				text: `INSERT INTO account (nombre, apellido, password, email, created_at, estado) VALUES ($1, $2, $3, $4, $5, $6)`,
+				values: [process.env.ADMIN_NAME,process.env.ADMIN_LASTNAME,adminHash,process.env.ADMIN_EMAIL,created_at,true],
+			}
+			let insertColab={
+				text: `INSERT INTO account (nombre, apellido, password, email, created_at, estado) VALUES ($1, $2, $3, $4, $5, $6)`,
+				values: [process.env.COLAB_NAME,process.env.COLAB_LASTNAME,colabHash,process.env.COLAB_EMAIL,created_at,true],
+			}
+			let createAdminRol={
+				text: `INSERT INTO rol (role_name) VALUES ($1)`,
+				values: ["administrador"],
+			}
+			let createColabRol={
+				text: `INSERT INTO rol (role_name) VALUES ($1)`,
+				values: ["colaborador"],
+			}
+			let linkAdminRole={
+				text: `INSERT INTO account_rol (user_id, role_id) VALUES ($1,$2)`,
+				values: [1,1],
+			}
+			let linkColabRole={
+				text: `INSERT INTO account_rol (user_id, role_id) VALUES ($1,$2)`,
+				values: [2,2],
+			}
 			//Skaters Table probe
 			try {
 				await client.query(queryTester_01);
@@ -28,7 +55,7 @@ const createTables = async (pool) => {
 				await client.query(queryTester_02);
 				console.log("Ya existe la tabla account");
 			} catch (error) {
-				const accountTable = `CREATE TABLE account (user_id serial PRIMARY KEY, username VARCHAR ( 50 ) UNIQUE NOT NULL, apellido VARCHAR ( 50 ) UNIQUE NOT NULL, password VARCHAR ( 100 ) NOT NULL, email VARCHAR ( 255 ) UNIQUE NOT NULL, created_at TIMESTAMP NOT NULL, last_login TIMESTAMP)`;
+				const accountTable = `CREATE TABLE account (user_id serial PRIMARY KEY, nombre VARCHAR ( 50 ) UNIQUE NOT NULL, apellido VARCHAR ( 50 ) UNIQUE NOT NULL, password VARCHAR ( 100 ) NOT NULL, email VARCHAR ( 255 ) UNIQUE NOT NULL, created_at DATE NOT NULL, estado BOOLEAN NOT NULL, last_login TIMESTAMP)`;
 				await client.query(accountTable);
 				console.log("tabla account creada con exito");
 			}
@@ -49,6 +76,20 @@ const createTables = async (pool) => {
 				const accountRolTable = `CREATE TABLE account_rol (user_id INT NOT NULL, role_id INT NOT NULL, grant_date TIMESTAMP, PRIMARY KEY (user_id, role_id), FOREIGN KEY (role_id) REFERENCES rol (role_id), FOREIGN KEY (user_id) REFERENCES account (user_id))`;
 				await client.query(accountRolTable);
 				console.log("tabla account_rol creada con exito");
+			}
+			try {
+				await client.query("BEGIN;");
+				await client.query(insertAdmin);
+				await client.query(insertColab);
+				await client.query(createAdminRol);
+				await client.query(createColabRol);
+				await client.query(linkAdminRole);
+				await client.query(linkColabRole);
+				await client.query("COMMIT;");
+				console.log("Transacción interna realizada con éxito, usuarios Admin y Colaborador listos para ser utilizados");
+			} catch (error) {
+				await client.query("ROLLBACK");
+				console.log("No a sido posible efectuar la transacción interna");
 			}
 			console.log("DDBB lista para ser utilizada");
 			return true;
@@ -128,6 +169,7 @@ const insertSkater = async (pool) => {
 		return {status:false,message: "error al conectar con la DDBB.",response: error};
 	}
 }
+
 module.exports = {
 	createTables,
 	deleteTables,

@@ -18,36 +18,46 @@ const getSkaters = async (pool) => {
 			const res = await client.query(queryStatement);
 			return res.rows;
 		} catch (error) {
-			return {message: "dbCtl.getSkaters error: ",data: error.stack};
+			return {message: "dbCtl.getSkaters error",data: error.stack};
 		} finally {
 			client.release();
 		}
 	} catch (error) {
-		return {message: "error al conectar con la DDBB, error : ",data: error};
+		return {message: "error al conectar con la DDBB",data: error};
 	}
 };
 // GET /skater
 const getSkater = async (pool,target,findBy) => {
 	let queryText;
 	let queryName;
-	if (findBy=="id" || findBy==undefined){
-		queryText="select id, email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater WHERE id = $1;";
-		queryName="get-skater-by-id"
-	}
-	if (findBy=="email"){
-		queryText="select id, email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater WHERE email = $1;"
-		queryName="get-skater-by-email"
-	}
+	switch (findBy){
+		case "id":
+			queryText="SELECT id, email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater WHERE id = $1;";
+			queryName="get-skater-by-id"
+			break;
+		case "email":
+			queryText="SELECT id, email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater WHERE email = $1;"
+			queryName="get-skater-by-email"
+			break;
+		default:
+			queryText="SELECT id, email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater WHERE id = $1;";
+			queryName="get-skater-by-id"
+			break;
+		}
 	let queryStatement = {
 		name: queryName,
 		text: queryText,
-		values: [target]
+		values: [target],
 	};
 	try {
 		let client = await pool.connect();
 		try {
 			const res = await client.query(queryStatement);
-			return res.rows[0];
+			if(res.rowCount==0){
+				return {error:"404 email not found", message:"el email ingresado no se encuentra en nuestros registros."}
+			}else{
+				return res.rows[0];
+			}
 		} catch (error) {
 			return {message: "dbCtl.getSkater error",data: error.stack};
 		} finally {
@@ -79,10 +89,10 @@ const insertSkater = async (pool, email, nombre, apellido, password, anos_experi
 	}
 };
 // PUT /skater
-const editSkater = async (pool, id, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado) => {
+const editSkater = async (pool, id, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado) => {
 	let queryStatement = {
-		text: "UPDATE skater SET nombre=$3, apellido=$4, password=$5, anos_experiencia=$6, especialidad=$7, puntaje=$8, foto=$9, estado=$10 WHERE id = $1 RETURNING *;",
-		values: [id, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado],
+		text: "UPDATE skater SET nombre=$2, apellido=$3, password=$4, anos_experiencia=$5, especialidad=$6, puntaje=$7, foto=$8, estado=$9 WHERE id = $1 RETURNING *;",
+		values: [id, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado],
 	};
 	try {
 		let client = await pool.connect();

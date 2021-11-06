@@ -6,11 +6,12 @@ parámetros de funciones callbacks para condicionar las funciones del servidor. 
 /* Consultas DML para la
 gestión y persistencia de datos. */
 
-// GET /skaters
-const getSkaters = async (pool) => {
+/* Consultas de uso exclusivo del administrador */
+// GET /colabs
+const getColabs = async (pool) => {
 	let queryStatement = {
-		name: "get-skaters",
-		text: "select email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado, from skater ORDER BY id;",
+		name: "get-colabs",
+		text: "SELECT account.user_id, account.nombre, account.apellido, account.password, account.email, account.created_at, account.estado FROM account INNER JOIN account_rol ON account.user_id = account_rol.role_id WHERE account_rol.role_id=2 ORDER BY account.user_id;",
 	};
 	try {
 		let client = await pool.connect();
@@ -18,192 +19,199 @@ const getSkaters = async (pool) => {
 			const res = await client.query(queryStatement);
 			return res.rows;
 		} catch (error) {
-			console.log("dbCtl.getSkaters error: ", error.stack);
+			return {message: "dbCtl.getColabs error",data: error.stack};
 		} finally {
 			client.release();
 		}
 	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
+		return {message: "error al conectar con la DDBB",data: error};
 	}
 };
+// PUT /intranet/changeState/${id}
+const changeState = async (pool, id, newState) => {
+	let queryStatement = {
+		text: "UPDATE account SET estado=$2 WHERE user_id = $1 RETURNING *;",
+		values: [id,newState],
+	};
+	try {
+		let client = await pool.connect();
+		try {
+			const res = await client.query(queryStatement);
+			client.release();
+			if(res.rows[0].estado){
+				let message=` ${res.rows[0].nombre} ${res.rows[0].apellido} ha sido habilitado para evaluar skaters`;
+				return { status:true,message, dbResponse: res.rows[0]};
+			}else{
+				let message=` ${res.rows[0].nombre} ${res.rows[0].apellido} ya no puede evaluar skaters`;
+				return { status:true,message, dbResponse: res.rows[0]};
+			}
+		} catch (error) {
+			return { status:false,message:"error al intentar editar cuenta", dbResponse: error.stack};
+		}
+	} catch (error) {
+		return { status:false,message:"error al conectar con la DDBB", dbResponse: error};
+	}
+};
+
+// GET /colab
+const getColab = async (pool,target,findBy) => {
+	let queryText;
+	let queryName;
+	switch (findBy){
+		case "id":
+			queryText="SELECT account.user_id, (SELECT role_name FROM rol WHERE account_rol.role_id = rol.role_id), account.nombre, account.apellido, account.password, account.email, account.estado FROM account INNER JOIN account_rol ON account.user_id = account_rol.user_id WHERE account.user_id=$1;";
+			queryName="get-colab-by-id"
+			break;
+		case "email":
+			queryText="SELECT account.user_id, (SELECT role_name FROM rol WHERE account_rol.role_id = rol.role_id), account.nombre, account.apellido, account.password, account.email, account.estado FROM account INNER JOIN account_rol ON account.user_id = account_rol.user_id WHERE account.email=$1;"
+			queryName="get-colab-by-email"
+			break;
+		default:
+			queryText="SELECT account.user_id, (SELECT role_name FROM rol WHERE account_rol.role_id = rol.role_id), account.nombre, account.apellido, account.password, account.email, account.estado FROM account INNER JOIN account_rol ON account.user_id = account_rol.user_id WHERE account.user_id=$1;";
+			queryName="get-colab-by-id"
+			break;
+		}
+	let queryStatement = {
+		name: queryName,
+		text: queryText,
+		values: [target],
+	};
+	try {
+		let client = await pool.connect();
+		try {
+			const res = await client.query(queryStatement);
+			if(res.rowCount==0){
+				return {error:"404 email not found", message:"el email ingresado no se encuentra en nuestros registros."}
+			}else{
+				return res.rows[0];
+			}
+		} catch (error) {
+			return {message: "dbCtl.getColab error",data: error.stack};
+		} finally {
+			client.release();
+		}
+	} catch (error) {
+		return {message: "error al conectar con la DDBB",data: error};
+	}
+};
+
 // POST /skater
 const insertSkater = async (pool, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado) => {
-	let created_on = tools.getStringDate();
+	let created_at = tools.getStringDate();
 	let queryStatement = {
-		text: "INSERT INTO skater (email, nombre, apellido, password, created_on, anos_experiencia, especialidad, puntaje, foto, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *",
-		values: [email, nombre, apellido, password, created_on, anos_experiencia, especialidad, puntaje, foto, estado],
+		text: "INSERT INTO skater (email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *",
+		values: [email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado],
 	};
 	try {
 		let client = await pool.connect();
 		try {
 			const res = await client.query(queryStatement);
 			client.release();
-			console.log("Cuenta skater creada satisfactoriamente :", res.rows[0]);
+			return {status:true,message:"Cuenta skater creada satisfactoriamente", dbResponse: res.rows[0]};
 		} catch (error) {
-			console.log("error: ", error.stack);
+			return {status:false,message:"error al intentar crear cuenta",dbResponse: error.stack};
 		}
 	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
-	}
-};
-// PUT /skater
-const editSkater = async (pool, id, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado) => {
-	let queryStatement = {
-		text: "UPDATE skater SET email=$2, nombre=$3, apellido=$4, password=$5, anos_experiencia=$6, especialidad=$7, puntaje=$8, foto=$9, estado=$10 WHERE id = $1 RETURNING *;",
-		values: [id, email, nombre, apellido, password, anos_experiencia, especialidad, puntaje, foto, estado],
-	};
-	try {
-		let client = await pool.connect();
-		try {
-			const res = await client.query(queryStatement);
-			client.release();
-			console.log("Cuenta skater editada satisfactoriamente :", res.rows[0]);
-		} catch (error) {
-			console.log("error: ", error.stack);
-		}
-	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
+		return {status:false,message: "error al conectar con la DDBB",dbResponse: error};
 	}
 };
 // DELETE /skater
 const deleteAcc = async (pool, id) => {
 	let queryStatement = {
 		rowMode: "array",
-		text: `DELETE FROM usuario WHERE id = $1 RETURNING *`,
-		values: [id],
-	};
-	let queryCascade_01 = {
-		rowMode: "array",
-		text: `DELETE FROM transferencia WHERE emisor = $1 RETURNING *`,
-		values: [id],
-	};
-	let queryCascade_02 = {
-		rowMode: "array",
-		text: `DELETE FROM transferencia WHERE receptor = $1 RETURNING *`,
+		text: `DELETE FROM skater WHERE id = $1 RETURNING *`,
 		values: [id],
 	};
 	try {
 		let client = await pool.connect();
 		try {
-			await client.query("BEGIN");
-			await client.query(queryCascade_01);
-			await client.query(queryCascade_02);
 			const res = await client.query(queryStatement);
-			await client.query("COMMIT");
-
 			client.release();
 			if (res.rows[0]) {
-				console.log(
-					"el registro del cliente id: " +
-						res.rows[0][0] +
-						", de saldo: " +
-						res.rows[0][1] +
-						" ha sido eliminado con éxito"
-				);
+				return {message: "Skater eliminado exitosamente",dbResponse: res.rows[0]};
 			} else {
-				console.log("el cliente no existe");
+				return {message: "el skater no existe"};
 			}
 		} catch (error) {
-			console.log("error al intentar eliminar la cuenta skater ", error.stack);
+			return {message: "error al intentar eliminar la cuenta skater ",dbResponse: error.stack};
 		}
 	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
+		return {message: "error al conectar con la DDBB",dbResponse: error};
 	}
 };
 
-/* (2.) Usar transacciones SQL para realizar el registro de las transferencia. */
-const newTransaction = async (pool, accountIn, accountOut, mount) => {
-	let queryStatement_Trans = {
-		rowMode: "array",
-		text: "INSERT INTO transferencia(emisor, receptor, monto) VALUES ($1, $2, $3) RETURNING *",
-		values: [accountOut, accountIn, mount],
-	};
-	let queryStatement_AccIn = {
-		rowMode: "array",
-		text: "UPDATE usuario SET balance = balance + $1 where id = $2",
-		values: [mount, accountIn],
-	};
-	let queryStatement_AccOut = {
-		rowMode: "array",
-		text: "UPDATE usuario SET balance = balance - $1 where id = $2",
-		values: [mount, accountOut],
-	};
-
-	try {
-		let client = await pool.connect();
-		try {
-			await client.query("BEGIN");
-
-			let resTrans = await client.query(queryStatement_Trans);
-			let arrTrans = resTrans.rows[0];
-			await client.query(queryStatement_AccIn);
-			await client.query(queryStatement_AccOut);
-			await client.query("COMMIT");
-			client.release();
-			console.log(
-				"Transacción procesada correctamente, información de transacción:"
-			);
-			console.log(arrTrans);
-			return arrTrans;
-		} catch (error) {
-			await client.query("ROLLBACK");
-			client.release();
-			console.log("error al intentar generar la transacción, ", error);
-		}
-	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
-	}
-};
-const getTransaction = async (pool) => {
-	let queryAcc = { name: "get-balance" };
+//PUT intranet/skaterScore
+const skaterScore = async (pool, id, puntaje, estado) => {
 	let queryStatement = {
-		rowMode: "array",
-		name: "get-trans",
-		text: "select id, emisor, receptor, monto, fecha from transferencia ORDER BY id;",
+		text: "UPDATE skater SET puntaje=$2, estado=$3 WHERE id = $1 RETURNING *;",
+		values: [id, puntaje, estado],
 	};
 	try {
 		let client = await pool.connect();
 		try {
-			let res = await client.query(queryAcc);
-			let accList = res.rows;
-			const resTrans = await client.query(queryStatement);
-			let arrTrans = resTrans.rows;
-			accList.forEach((e) => {
-				for (i = 0; i < arrTrans.length; i++) {
-					if (e.id == arrTrans[i][1]) {
-						try {
-							arrTrans[i][1] = e.nombre;
-						} catch (error) {
-							console.log("if01 error: ", error);
-						}
-					} else if (e.id == arrTrans[i][2]) {
-						try {
-							arrTrans[i][2] = e.nombre;
-						} catch (error) {
-							console.log("if02 error: ", error);
-						}
-					}
-				}
-			});
-			console.log("dbCtl.getTransaction result: ", arrTrans);
-			if (arrTrans.length > 0) {
-				return arrTrans;
-			}
+			const res = await client.query(queryStatement);
+			client.release();
+			return { status:true,message:"Cuenta skater evaluada satisfactoriamente", dbResponse: res.rows[0]};
 		} catch (error) {
-			console.log("dbCtl.getTransaction error: ", error.stack);
+			return { status:false,message:"error al intentar guardar la evaluación", dbResponse: error.stack};
+		}
+	} catch (error) {
+		return { status:false,message:"error al conectar con la DDBB", dbResponse: error};
+	}
+};
+
+
+/* Consultas acuxiliares (preparación de modularización para esquema microservicios) */
+// GET /skaters
+const getSkaters = async (pool) => {
+	let queryStatement = {
+		name: "get-intranet-skaters",
+		text: "select id, email, nombre, apellido, password, created_at, anos_experiencia, especialidad, puntaje, foto, estado FROM skater ORDER BY id;",
+	};
+	try {
+		let client = await pool.connect();
+		try {
+			const res = await client.query(queryStatement);
+			return res.rows;
+		} catch (error) {
+			return {message: "dbCtl.getSkaters error",data: error.stack};
 		} finally {
 			client.release();
 		}
 	} catch (error) {
-		console.log("error al conectar con la DDBB, error : ", error);
+		return {message: "error al conectar con la DDBB",data: error};
+	}
+};
+// DELETE /skater
+const deleteSkater = async (pool, id) => {
+	let queryStatement = {
+		rowMode: "array",
+		text: `DELETE FROM skater WHERE id = $1 RETURNING *`,
+		values: [id],
+	};
+	try {
+		let client = await pool.connect();
+		try {
+			const res = await client.query(queryStatement);
+			client.release();
+			if (res.rows[0]) {
+				return {message: "Skater eliminado exitosamente",dbResponse: res.rows[0]};
+			} else {
+				return {message: "el skater no existe"};
+			}
+		} catch (error) {
+			return {message: "error al intentar eliminar la cuenta skater ",dbResponse: error.stack};
+		}
+	} catch (error) {
+		return {message: "error al conectar con la DDBB",dbResponse: error};
 	}
 };
 
 module.exports = {
-	newTransaction,
-	getTransaction,
-	insertSkater,
-	editSkater,
+	getColabs,
+	getColab,
+	changeState,
+	skaterScore,
 	getSkaters,
-	deleteAcc,
+	deleteSkater,
 };

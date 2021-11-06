@@ -19,16 +19,16 @@
 			</div>
 		</div>
 		<div class="mb-3">
-			<label for="exampleInputEmail1" class="form-label">Email address</label>
+			<label for="exampleInputEmail1" class="form-label">Ingrésa tu email.</label>
 			<input
 				type="email"
 				name="email"
+				placeholder="asd@asd.com"
 				class="form-control"
 				id="exampleInputEmail1"
 				aria-describedby="emailHelp"
 			/>
-			<div id="emailHelp" class="form-text">We'll never share your email
-				with anyone else.</div>
+			<div id="emailHelp" class="form-text">No compartas tu contraseña con nadie, el equipo SkatePark jamás te solicitará información personal.</div>
 		</div>
 		<div class="mb-3">
 			<label
@@ -38,19 +38,10 @@
 			<input
 				type="password"
 				name="password"
+				placeholder="****"
 				class="form-control"
 				id="exampleInputPassword1"
 			/>
-		</div>
-		<div class="mb-3 form-check">
-			<input
-				type="checkbox"
-				name="politicas"
-				class="form-check-input"
-				id="exampleCheck1"
-				required
-			/>
-			<label class="form-check-label" for="exampleCheck1">Políticas de uso</label>
 		</div>
 		<button type="submit" class="btn btn-primary">Ingresar</button>
 	</form>
@@ -79,8 +70,7 @@
 			form.submit();
 		}else{
 			form.setAttribute("action", "login/intranet")
-			console.log("intranet: ",skater);	
-			console.log("intranet action: ",form.getAttribute("action"));
+			form.submit();
 		}
 	})
 </script>

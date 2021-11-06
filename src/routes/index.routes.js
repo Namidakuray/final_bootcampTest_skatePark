@@ -23,13 +23,15 @@ router.use("/", async (req, res,next) => {
         break;
       case 2:
         switch (user.userRole){
-          case "worker":
+          case "colaborador":
             authorise={skaters,intranet,token}
             break;
-          case "admin":
+          case "administrador":
+            console.log("¡Administrator!")
             authorise={skaters,admin,token}
             break;
         };
+        break;
       default:
         authorise={skaters}
         break;
@@ -46,7 +48,5 @@ router.get("/signup", (req, res) => {
 router.get("/login", (req, res) => {
   res.render("Login");
 });
-router.get("/intranet", (req, res) => {
-  res.render("Login");
-});
+
 module.exports= router;

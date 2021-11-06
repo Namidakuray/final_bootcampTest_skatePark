@@ -6,10 +6,13 @@ const saltRounds = Number(process.env.SALT_ROUNDS);
 const jwt = require('jsonwebtoken');
 const secretKey = uuidv4();
 
-const createTokenAcces = async (req, res, next, user, userType)=>{
+const createTokenAcces = async (req, res, user, userType)=>{
     let { password } = req.body;
+	let hash = user.password;
+	//console.log("body.password: ",password);
+	//console.log("body.hash: ",hash);
 	let userData;
-	let matchPass= await compareHash(password, user.password);
+	let matchPass= await compareHash(password, hash);
 	if(userType=="skater"){
 		userData={
 			id:user.id,
@@ -34,26 +37,28 @@ const createTokenAcces = async (req, res, next, user, userType)=>{
 			secretKey
 		);
 		req.token = token;
-		next();
+		//console.log("token: ",token);
+		//console.log("userData: ",userData);
+		return true;
 	} else {
-		res.status(401).send({
-		error: "La password ingresada no coincide con nuestros registros.",
-		code: 401,
-		});
+		res.status(401).render("Info",{dataError:{
+		error: "401 Unauthorized",
+		message: "La password ingresada no coincide con nuestros registros.",
+		}});
 	};
 };
 const verifyToken= async (res,token)=>{
 	return jwt.verify(token, secretKey,async (err, decoded) => {
 		if (err){
-			res.status(401).send(
-				res.send({
-					error: "401 Unauthorized",
-					message: "Usted no está autorizado para estar aquí",
-					token_error: err.message,
-				})
+			res.status(401).render("Info",{dataError:{
+						error: "401 Unauthorized",
+						message: "Usted no está autorizado para estar aquí",
+						default_error: err.message,
+					}}
 			)
 		}else{
 			let {payload} = await decoded;
+			//console.log("jwt.verify: ",payload)
 			return payload;
 		}
     });

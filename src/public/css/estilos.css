@@ -16,8 +16,6 @@ body {
   }
   td div{
       background-size: cover;
-      width: 60px;
-      height: 60px;
   }  
   input{
       text-align: center;

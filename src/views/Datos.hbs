@@ -5,72 +5,89 @@
 	<hr class="w-50" />
 
 	<form id="form">
+		<div id="checkboxs" class="form-check d-flex justify-content-around">
+			<div class="form-check">
+				<input class="form-check-input" type="radio" name="typeAction" id="flexRadioDefault2" checked>
+				<label class="form-check-label" for="flexRadioDefault2">
+					Editar cuenta
+				</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="radio" name="typeAction" id="flexRadioDefault1">
+				<label class="form-check-label" for="flexRadioDefault1">
+					Eliminar cuenta
+				</label>
+			</div>
+		</div>
 		<div class="form-group row w-50 m-auto">
-			<div class="form-group col-12 col-sm-6">
-				<label for="email">Email:</label><br />
-				<input type="email" name="email" data-id="{{id}}" value="{{skater.email}}" class="form-control m-auto"/>
-			</div>
-			<div class="form-group col-12 col-sm-6">
+			<div id="fname" class="form-group col-12 col-sm-6">
 				<label for="fname">Nombre:</label><br />
-				<input type="text" name="fname" value="{{skater.nombre}}" class="form-control m-auto"/>
+				<input type="text" name="fname" data-id="{{id}}" value="{{skater.nombre}}" class="form-control m-auto"/>
 			</div>
-			<div class="form-group col-12 col-sm-6">
+			<div id="lname" class="form-group col-12 col-sm-6">
 				<label for="lname">Apellido:</label><br />
 				<input type="text" name="lname" value="{{skater.apellido}}" class="form-control m-auto"/>
 			</div>
-			<div class="form-group col-12 col-sm-6">
-				<label for="last_password">Password:</label><br />
-				<input type="password" name="last_password" data-pass="{{skater.password}}" id="password" class="form-control m-auto"/>
-			</div>			<div class="form-group col-12 col-sm-6">
+			<div id="last_password" class="form-group col-12 col-sm-6">
+				<label for="last_password">Password Actual:</label><br />
+				<input type="password" placeholder="****" name="last_password" data-pass="{{skater.password}}" id="password" class="form-control m-auto" required/>
+			</div>			
+			<div id="password_01" class="form-group col-12 col-sm-6">
 				<label for="password_01">Nueva Password:</label><br />
-				<input type="password" name="password_01" class="form-control m-auto"/>
+				<input type="password" placeholder="****" name="password_01" class="form-control m-auto"/>
 			</div>
-			<div class="form-group col-12 col-sm-6">
+			<div id="password_02" class="form-group col-12 col-sm-6">
 				<label for="password_02">Repita la nueva password:</label><br />
-				<input type="password" name="password_02" class="form-control m-auto"/>
+				<input type="password" placeholder="****" name="password_02" class="form-control m-auto"/>
 			</div>
-			<div class="form-group col-12 col-sm-6">
+			<div id="experience" class="form-group col-12 col-sm-6">
 				<label for="experience">Años de experiencia:</label><br />
 				<input type="number" name="experience" value="{{skater.anos_experiencia}}" class="form-control m-auto"/>
 			</div>
-			<div class="form-group col-12 col-sm-6">
+			<div id="speciality" class="form-group col-12 col-sm-6">
 				<label for="speciality">Especialidad:</label><br />
 				<input type="text" name="speciality" value="{{skater.especialidad}}" class="form-control m-auto"/>
 			</div>
 		</div>
-		<button type="submit" class="btn btn-info mb-3">Actualizar información</button>
+		<button id="buttonEdit" type="submit" class="btn btn-info mb-3">Actualizar información</button>
 	</form>
-	<button id="button" class="btn btn-danger mb-3">Eliminar cuenta</button>
+	<button id="buttonDelete" class="btn btn-danger mb-3">Eliminar cuenta</button>
 </div>
 
 <script>
-	const form = document.getElementById("form");
-	const btnDelete = document.getElementById("button");
+	let form = document.getElementById("form");
+	let checked = document.getElementById("checkboxs");
+	let btnDelete = document.getElementById("buttonDelete");
+	let btnEdit = document.getElementById("buttonEdit");
+	if(tokenSaved){tokenSaved = sessionStorage.getItem('token');
+	}else{let tokenSaved = sessionStorage.getItem('token')};
+	
 	form.addEventListener("submit",async (e)=>{
 		e.preventDefault();
-		let accId = form.elements["email"].getAttribute("data-id");
+		let userId = form.elements["fname"].getAttribute("data-id");
 		let dbPass = form.elements["last_password"].getAttribute("data-pass");
 		const pass_probe = form.elements["last_password"].value;
 		const password_01 = form.elements["password_01"].value;
 		const password_02 = form.elements["password_02"].value;
 		if(password_01!=password_02){
 			alert("Las contraseñas no coinciden, intente nuevamente.");
-		}else if(pass_probe.length==0){
+		}else if(password_01.length==0){
 			let dataRequest={
-				email: form.elements["email"].value,
+				token: `{{token}}`,
 				fname: form.elements["fname"].value,
 				lname: form.elements["lname"].value,
 				last_password: dbPass,
 				experience: form.elements["experience"].value,
 				speciality: form.elements["speciality"].value,
 			}
-			let response=await axios.put(`/editAccount/skater/${accId}`, dataRequest);
-			alert(response.data.message)
+			let response=await axios.put(`/editAccount/skater/${userId}`, dataRequest);
+			alert(`${response.data.title} \n${response.data.message}`)
+			window.location.replace(`/?token={{token}}`);
 		}else if(password_01.length<5){
 			alert("La nueva contraseña debe contener a lo menos 5 carácteres.");
 		}else{
 			let dataRequest={
-				email: form.elements["email"].value,
+				token: `{{token}}`,
 				fname: form.elements["fname"].value,
 				lname: form.elements["lname"].value,
 				pass_probe: pass_probe,
@@ -79,23 +96,24 @@
 				experience: form.elements["experience"].value,
 				speciality: form.elements["speciality"].value,
 			};
-			let response =await axios.put(`/editAccount/skater/${accId}`, dataRequest);
-			alert(response.data.message)
+			let response =await axios.put(`/editAccount/skater/${userId}`, dataRequest);
+			alert(`${response.data.title} \n${response.data.message}`)
+			window.location.replace(`/?token={{token}}`);
 		};
 	});
 	btnDelete.addEventListener("click",async (e)=>{
 		e.preventDefault();
-		let accId = form.elements["email"].getAttribute("data-id");
+		let userId = form.elements["fname"].getAttribute("data-id");
 		let dbPass = form.elements["last_password"].getAttribute("data-pass");
 		let pass_probe = document.getElementById("password").value;
 		try{
 			let dataRequest={
-				accId,
+				token:`{{token}}`,
 				dbPass,
 				pass_probe
 			};
 			if(dataRequest.pass_probe.length>0){
-			let response = await axios.delete(`/delete/skater/`, {
+			let response = await axios.delete(`/delete/skater/${userId}`, {
 				{{!-- headers: {
 					Authorization: authorizationToken
 				}, --}}
@@ -103,11 +121,50 @@
 					source: dataRequest
 				}
 				});
-			alert(response.data.message);
-			setTimeout(()=>{window.location.replace("http://localhost:3000/");},2000);
+			if(response.data.dataError){
+			alert(`${response.data.dataError.error} \n${response.data.dataError.message}`);
+			}else{
+				alert(`${response.data.message}`)
+				window.location.replace(`/`);
+			};
 			}else{alert("Debe ingresar su password para eliminar la cuenta")}
 		}catch(err){
+			alert(err);
 			console.log(err)
 		}
 	})
+	const class00=document.getElementById("fname").getAttribute("class");
+	const class02=document.getElementById("lname").getAttribute("class");
+	const class03=document.getElementById("last_password").getAttribute("class");
+	const class04=document.getElementById("password_01").getAttribute("class");
+	const class05=document.getElementById("password_02").getAttribute("class");
+	const class06=document.getElementById("experience").getAttribute("class");
+	const class07=document.getElementById("speciality").getAttribute("class");
+	const class08=document.getElementById("buttonDelete").getAttribute("class");
+	const class09=document.getElementById("buttonEdit").getAttribute("class");
+	document.getElementById("buttonDelete").setAttribute("class","d-none");
+	checked.addEventListener("click",(e)=>{
+		let editAccount=form.elements["typeAction"][0].checked;
+		if(editAccount){
+			document.getElementById("fname").setAttribute("class",class00);
+			document.getElementById("lname").setAttribute("class",class02);
+			document.getElementById("last_password").setAttribute("class",class03);
+			document.getElementById("password_01").setAttribute("class",class04);
+			document.getElementById("password_02").setAttribute("class",class05);
+			document.getElementById("experience").setAttribute("class",class06);
+			document.getElementById("speciality").setAttribute("class",class07);
+			document.getElementById("buttonDelete").setAttribute("class","d-none");
+			document.getElementById("buttonEdit").setAttribute("class",class09);
+		}else{
+			document.getElementById("fname").setAttribute("class","d-none");
+			document.getElementById("lname").setAttribute("class","d-none");
+			document.getElementById("password_01").setAttribute("class","d-none");
+			document.getElementById("password_02").setAttribute("class","d-none");
+			document.getElementById("experience").setAttribute("class","d-none");
+			document.getElementById("speciality").setAttribute("class","d-none");
+			document.getElementById("buttonDelete").setAttribute("class",class08);
+			document.getElementById("buttonEdit").setAttribute("class","d-none");
+		}
+	})
+
 </script>

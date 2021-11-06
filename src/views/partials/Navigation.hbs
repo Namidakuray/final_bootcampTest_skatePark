@@ -1,6 +1,10 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 	<div class="container-fluid">
+		{{#if token}}
+		<a id="home" class="navbar-brand" href="/?token={{token}}">SkatePark</a>
+		{{else}}
 		<a id="home" class="navbar-brand" href="/">SkatePark</a>
+		{{/if}}
 		<button
 			class="navbar-toggler"
 			type="button"
@@ -19,44 +23,35 @@
 				<a class="nav-link" href="/login">Ingresar</a>
 				{{/unless}}
 				{{#if skater}}
-				<a class="nav-link" id="skaterLink" href="" >Editar cuenta [Skater]</a>
+				<a class="nav-link" id="skaterLink" href="/editAccount/skater/{{skater.id}}/{{token}}" >Editar cuenta [Skater]</a>
+				{{/if}}
+				{{#if admin}}
+				<a class="nav-link" id="intranetLink" href="/intranet/{{token}}">Listar postulantes [Intranet]</a>
 				{{/if}}
 				{{#if intranet}}
-				<a class="nav-link" id="intranetLink" href="">Editar cuenta [Intranet]</a>
-			</div>
-            <div><a class="nav-link" href="/intranet">Intranet</a></div>
-				{{else}}
-			</div>
+				<a class="nav-link" id="intranetLink" href="/intranet/{{token}}">Listar postulantes [Intranet]</a>
 				{{/if}}
+			</div>
+				{{#if admin}}
+            <div><a class="nav-link" href="/intranet/admin/{{token}}">Intranet</a></div>
+				{{/if}}
+			</div>
 		</div>
 	</div>
 </nav>
 
 <script>
-	let skaterLink=document.getElementById("skaterLink")
-	let intranetLink=document.getElementById("intranetLink")
-	let tokenTemp = `{{token}}`.split("=")[0];
-	let tokenSaved = sessionStorage.getItem('token').replaceAll('"',"");
-	if(tokenTemp.length>10&&tokenSaved!=tokenTemp){
+	console.log("original token: ", "{{token}}");
+	let tokenTemp = "{{token}}";
+	console.log("tokenTemp: ", tokenTemp);
+	let tokenSaved = sessionStorage.getItem('token');
+	console.log("tokenSaved: ", tokenSaved);
+	if(tokenTemp.length>10&&tokenTemp!=tokenSaved.replaceAll('"','')){
 		alert(`Autenticado con éxito! Tu token está en SessionStorage`)
 		sessionStorage.setItem('token', JSON.stringify(tokenTemp))
-		tokenSaved = sessionStorage.getItem('token').replaceAll('"',"");
+		tokenSaved = sessionStorage.getItem('token').replaceAll('"','');
+		console.log("sessionStorage.token: ",tokenSaved)
+		console.log("handlebars.token: ",tokenTemp)
 	}
-	console.log("sessionStorage.token: ",tokenSaved)
-	console.log("handlebars.token: ",tokenTemp)
-	console.log(tokenSaved==tokenTemp);
-	if(tokenSaved==tokenTemp){
-		let url = `/?token=${tokenSaved}`;
-		document.getElementById("home").setAttribute("href",url)
-	}
-	if(skaterLink){
-		let url = `/editAccount/skater/{{skater.id}}/${tokenSaved}`;
-		skaterLink.setAttribute('href',url)
-	}
-	if(intranetLink){
-		skaterLink.addEventListener("click",(e)=>{
-			e.preventDefault();
-		})
-	};
-
+	console.log(tokenTemp==tokenSaved);
 </script>

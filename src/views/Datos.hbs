@@ -59,8 +59,6 @@
 	let checked = document.getElementById("checkboxs");
 	let btnDelete = document.getElementById("buttonDelete");
 	let btnEdit = document.getElementById("buttonEdit");
-	if(tokenSaved){tokenSaved = sessionStorage.getItem('token');
-	}else{let tokenSaved = sessionStorage.getItem('token')};
 	
 	form.addEventListener("submit",async (e)=>{
 		e.preventDefault();

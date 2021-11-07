@@ -2,6 +2,7 @@
 	<h2>Skaters participantes</h2>
 	<hr />
 	<div class="row row-cols-1 row-cols-md-3 g-4">
+		{{#if token}}
 		{{#each skaters}}
 			<div class="col my-2">
 				<div class="card">
@@ -30,6 +31,11 @@
 							<p class="card-text">{{this.anos_experiencia}}
 								años</p>
 						</div>
+						<div class="d-flex justify-content-around">
+							<p class="card-text">Puntaje total:</p>
+							<p class="card-text">{{this.puntaje}}
+								Puntos</p>
+						</div>
 						<p class="card-text"><small class="text-muted">cuenta
 								creada el
 								{{this.created_at}}</small></p>
@@ -37,5 +43,38 @@
 				</div>
 			</div>
 		{{/each}}
+		{{else}}
+		{{#each skaters}}
+		{{#if this.estado}}
+			<div class="col my-2">
+				<div class="card">
+					<img
+						src="/img/{{this.foto}}"
+						class="card-img-top"
+						alt="{{this.nombre}}_{{this.apellido}}"
+					/>
+					<div class="card-body">
+						<h5 class="card-title">{{this.nombre}}
+							{{this.apellido}}</h5>
+						<div class="d-flex justify-content-around">
+							<p class="card-text">Especialidad:</p>
+							<p class="card-text">{{this.especialidad}}</p>
+						</div>
+						<div class="d-flex justify-content-around">
+							<p class="card-text">Experiencia:</p>
+							<p class="card-text">{{this.anos_experiencia}}
+								años</p>
+						</div>
+						<div class="d-flex justify-content-around">
+							<p class="card-text">Puntaje total:</p>
+							<p class="card-text">{{this.puntaje}}
+								Puntos</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		{{/if}}
+		{{/each}}
+		{{/if}}
 	</div>
 </div>

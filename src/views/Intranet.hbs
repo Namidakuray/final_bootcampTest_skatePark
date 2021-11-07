@@ -4,8 +4,34 @@
 	{{else}}
 	<h2>Dashboard gestión skaters</h2>
 	{{/if}}
+	{{#unless admin}}
+	<div>
+		{{#if estado}}
+		<h2 class="text-primary font-weight-bold">Usted está autorizado para evaluar</h2>
+		{{else}}
+		<h2 class="text-danger font-weight-bold">Usted NO está autorizado para evaluar</h2>
+		{{/if}}
+	</div>
+	{{/unless}}
 	<hr class="w-50" />
 	<table class="table w-50 m-auto">
+		{{#if estado}}
+		<thead>
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Imágen</th>
+				<th scope="col">Nombre</th>
+				<th scope="col">Apellido</th>
+				<th scope="col">email</th>
+				<th scope="col">Fecha ingreso</th>
+				<th scope="col">Años de experiencia</th>
+				<th scope="col">Especialidad</th>
+				<th scope="col">Puntaje</th>
+				<th scope="col">Estado</th>
+				<th scope="col">Opciones</th>
+			</tr>
+		</thead>
+		{{else}}
 		<thead>
 			<tr>
 				<th scope="col">#</th>
@@ -20,8 +46,10 @@
 				<th scope="col">Estado</th>
 			</tr>
 		</thead>
-		<tbody>
+		{{/if}}
+			{{#if estado}}
 			{{#each skaters}}
+		<tbody>
 			<tr>
 				<th scope="row">{{@index}}</th>
 				<td><div><img src="/img/{{this.foto}}" alt="{{this.nombre}}_{{this.apellido}}"></div></td>
@@ -31,24 +59,39 @@
 				<td>{{this.created_at}}</td>
 				<td>{{this.anos_experiencia}}</td>
 				<td>{{this.especialidad}}</td>
-				<td><input data-userId="{{this.id}}" placeholder="{{this.puntaje}}" type="number" id="puntaje"></td>
-				<td><input class="checkboxs_{{this.id}}" data-state="{{this.estado}}" value="" type="checkbox" /></td>
+				<td><input placeholder="{{this.puntaje}}" type="number" id="puntaje-{{this.id}}"></td>
+				<td><h2 class="userState-validate" data-state="{{this.estado}}" >{{this.estado}}</h2></td>
 				<td class="buttons">
 					<div>
 					<button onclick="deleteSkater({{this.id}})" type="button" class="btn btn-danger buttonDelete"> Eliminar </button>
-					<button data-skaterId="{{this.id}}" type="button" class="btn btn-warning buttonUpdate">Evaluar </button>
+					<button onclick="updateSkater({{this.id}},{{this.estado}})" type="button" class="btn btn-warning buttonUpdate">Evaluar </button>
 					</div>
 				</td>
 			</tr>
 			{{/each}}
+			{{else}}
+			{{#each skaters}}
+		<tbody>
+			<tr>
+				<th scope="row">{{@index}}</th>
+				<td><div><img src="/img/{{this.foto}}" alt="{{this.nombre}}_{{this.apellido}}"></div></td>
+				<td>{{this.nombre}}</td>
+				<td>{{this.apellido}}</td>
+				<td>{{this.email}}</td>
+				<td>{{this.created_at}}</td>
+				<td>{{this.anos_experiencia}}</td>
+				<td>{{this.especialidad}}</td>
+				<td><h2>{{this.puntaje}}</h2></td>
+				<td><h2 class="userState-invalidate" data-state="{{this.estado}}" >{{this.estado}}</h2></td>
+			</tr>
+			{{/each}}
+			{{/if}}
 		</tbody>
 	</table>
 </div>
 
 
 <script>
-	let checkboxs = document.getElementsByClassName("buttonDelete");
-	console.log(checkboxs);
 	const deleteSkater=async(id)=>{
 		try{
 			let resp = await axios.delete(`/intranet/deleteSkater/${id}/{{token}}`)
@@ -58,11 +101,47 @@
 		}catch(err){
 			console.log(err)
 			alert("Ah ocurrido un error con el servidor")
-		}
-	}
-	for(let item of checkboxs){
-		if(item.dataset.state=="true"){
-			item.checked=true;
-		}else{item.checked=false};
 		};
+	}
+	const updateSkater=async(id,estado)=>{
+		let score=document.getElementById(`puntaje-${id}`)
+		let puntaje;
+		if(score.value==score.getAttribute('placeholder')){
+			puntaje=Number(score.getAttribute('placeholder'))
+		}else{
+			puntaje=Number(score.value)
+		}
+		try{
+			let body={
+				id,
+				puntaje,
+				estado,
+				token:'{{token}}'
+			};
+			let resp = await axios.put(`/intranet/updateSkater`,body)
+			console.log(resp.data)
+			alert(resp.data.message)
+			location.reload();
+		}catch(err){
+			console.log(err)
+			alert("Ah ocurrido un error con el servidor")
+		};
+	};
+	{{#if estado}}
+	let validates = document.getElementsByClassName("userState-validate");
+	for(let i;i<validates.length-1;i++){
+		let item=validates[i];
+		console.log("getAtributte: ",item.getAttribute('class'));
+		if(validates[i].dataset.state=="true"){
+			validates[i].setAttribute("class","bg-primary text-white")
+		}else{validates[i].setAttribute("class","bg-danger text-white")};
+		};
+	{{else}}
+	let invalidates = document.getElementsByClassName("userState-invalidate");
+	for(let item of invalidates){
+		if(item.dataset.state=="true"){
+			item.setAttribute("class","bg-primary text-white")
+		}else{item.setAttribute("class","bg-danger text-white")};
+		};
+	{{/if}}
 </script>

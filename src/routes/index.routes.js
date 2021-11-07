@@ -48,5 +48,8 @@ router.get("/signup", (req, res) => {
 router.get("/login", (req, res) => {
   res.render("Login");
 });
+router.get("/logout",(req,res)=>{
+  res.redirect("/")
+})
 
 module.exports= router;

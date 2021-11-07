@@ -117,7 +117,6 @@ router.post("/login/intranet", async (req, res) => {
 	res.redirect(`/?token=${token}`);
 });
 
-/* [{(SE DEBE IMPLEMENTAR LA VALIDACIÓN PARA PERMITIR EVALUAR)}] */
 router.get("/intranet/:token", async (req, res) => {
 	let { token } = req.params;
 	let response = await tools.verifyToken(res, token);
@@ -179,14 +178,17 @@ router.delete("/intranet/deleteSkater/:id/:token", async (req, res) => {
 });
 
 /* {[(SE DEBE TERMINAR EL UPDATE)]} */
-router.put("/intranet/update/", async (req, res) => {
+router.put("/intranet/updateSkater/", async (req, res) => {
 	let { id, puntaje, estado, token } = req.body;
+	let newState;
+	if(estado){newState=true
+	}else{newState=true}
 	let response = await tools.verifyToken(res, token);
 	if (response.userRole == "colaborador" && response.role == 2) {
-		let dbResp = await intranetCtl.skaterScore(pool, id, puntaje, estado);
+		let dbResp = await intranetCtl.skaterScore(pool, id, puntaje, newState);
 		res.status(200).send(dbResp);
 	} else if (response.userRole == "administrador" && response.role == 2) {
-		let dbResp = await intranetCtl.skaterScore(pool, id, puntaje, estado);
+		let dbResp = await intranetCtl.skaterScore(pool, id, puntaje, newState);
 		res.status(200).send(dbResp);
 	} else {
 		res.status(401).send({

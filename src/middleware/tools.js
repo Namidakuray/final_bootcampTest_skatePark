@@ -1,8 +1,10 @@
+require('dotenv').config();
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const axios = require('axios');
 const { v4: uuidv4 } = require("uuid");
 const saltRounds = Number(process.env.SALT_ROUNDS);
+const appState=process.env.APP_STATE;
 const jwt = require('jsonwebtoken');
 const secretKey = uuidv4();
 
@@ -29,9 +31,13 @@ const createTokenAcces = async (req, res, user, userType)=>{
 		}
 	};
     if (matchPass) {
+		let tokenTime;
+		if(appState=="dev"){tokenTime=360
+		}else if(appState=="prod"){tokenTime=180
+		}else{tokenTime=180}
 		const token = jwt.sign(
 			{
-			exp: Math.floor(Date.now() / 1000) + 180,
+			exp: Math.floor(Date.now() / 1000) + tokenTime,
 			payload: userData,
 			},
 			secretKey

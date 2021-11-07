@@ -32,26 +32,32 @@
 				<a class="nav-link" id="intranetLink" href="/intranet/{{token}}">Listar postulantes [Intranet]</a>
 				{{/if}}
 			</div>
-				{{#if admin}}
-            <div><a class="nav-link" href="/intranet/admin/{{token}}">Intranet</a></div>
-				{{/if}}
+			<div class="row">
+			{{#if token}}
+			<div><a class="nav-link" href="/logout">logout</a></div>
+			{{/if}}
+			{{#if admin}}
+			<div><a class="nav-link" href="/intranet/admin/{{token}}">Intranet</a></div>
+			{{/if}}
+			</div>
 			</div>
 		</div>
 	</div>
 </nav>
 
 <script>
-	console.log("original token: ", "{{token}}");
-	let tokenTemp = "{{token}}";
+	{{#if token}}
+	let tokenTemp = `{{token}}`;
 	console.log("tokenTemp: ", tokenTemp);
-	let tokenSaved = sessionStorage.getItem('token');
-	console.log("tokenSaved: ", tokenSaved);
-	if(tokenTemp.length>10&&tokenTemp!=tokenSaved.replaceAll('"','')){
+	let tokenSaved=sessionStorage.getItem('token');
+	if(tokenTemp.length>0&&tokenTemp!=tokenSaved){
+		sessionStorage.setItem('token', tokenTemp)
 		alert(`Autenticado con éxito! Tu token está en SessionStorage`)
-		sessionStorage.setItem('token', JSON.stringify(tokenTemp))
-		tokenSaved = sessionStorage.getItem('token').replaceAll('"','');
-		console.log("sessionStorage.token: ",tokenSaved)
-		console.log("handlebars.token: ",tokenTemp)
+	};
+	{{else}}
+	if(!(`${sessionStorage.getItem('token')}`=='null')){
+		sessionStorage.removeItem('token')
+		alert(`Token eliminado del SessionStorage`)
 	}
-	console.log(tokenTemp==tokenSaved);
+	{{/if}}
 </script>

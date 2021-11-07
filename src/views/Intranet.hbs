@@ -60,7 +60,7 @@
 				<td>{{this.anos_experiencia}}</td>
 				<td>{{this.especialidad}}</td>
 				<td><input placeholder="{{this.puntaje}}" type="number" id="puntaje-{{this.id}}"></td>
-				<td><h2 class="userState-validate" data-state="{{this.estado}}" >{{this.estado}}</h2></td>
+				<td><h2 class="userStateValidate" data-state="{{this.estado}}" >{{this.estado}}</h2></td>
 				<td class="buttons">
 					<div>
 					<button onclick="deleteSkater({{this.id}})" type="button" class="btn btn-danger buttonDelete"> Eliminar </button>
@@ -82,7 +82,7 @@
 				<td>{{this.anos_experiencia}}</td>
 				<td>{{this.especialidad}}</td>
 				<td><h2>{{this.puntaje}}</h2></td>
-				<td><h2 class="userState-invalidate" data-state="{{this.estado}}" >{{this.estado}}</h2></td>
+				<td><h2 class="userStateInvalidate" data-state="{{this.estado}}" >{{this.estado}}</h2></td>
 			</tr>
 			{{/each}}
 			{{/if}}
@@ -128,16 +128,17 @@
 		};
 	};
 	{{#if estado}}
-	let validates = document.getElementsByClassName("userState-validate");
-	for(let i;i<validates.length-1;i++){
-		let item=validates[i];
-		console.log("getAtributte: ",item.getAttribute('class'));
+	let validates = document.getElementsByClassName("userStateValidate");
+	console.log("largo: ",validates.length)
+	for(let i=0;i<=(validates.length);i++){
+		console.log("iteración: ",i)
+		console.log("Estado iteración",i," : ",validates[i].dataset.state)
 		if(validates[i].dataset.state=="true"){
 			validates[i].setAttribute("class","bg-primary text-white")
 		}else{validates[i].setAttribute("class","bg-danger text-white")};
 		};
 	{{else}}
-	let invalidates = document.getElementsByClassName("userState-invalidate");
+	let invalidates = document.getElementsByClassName("userStateInvalidate");
 	for(let item of invalidates){
 		if(item.dataset.state=="true"){
 			item.setAttribute("class","bg-primary text-white")

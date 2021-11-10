@@ -2,7 +2,7 @@
 ![javascript](https://img.shields.io/badge/JavaScript-323330?style=plastic&logo=javascript&logoColor=F7DF1E)
 ![nodejs](https://img.shields.io/badge/Node.js-339933?style=plastic&logo=nodedotjs&logoColor=white)
 ![expressjs](https://img.shields.io/badge/Express.js-000000?style=plastic&logo=express&logoColor=white)
-![JWT](https://img.shields.io/badge/Express.js-000000?style=plastic&logo=jsonwebtokens&logoColor=white)
+![JWT](https://img.shields.io/badge/JsonWebToken-000000?style=plastic&logo=jsonwebtokens&logoColor=white)
 ![postgresql](https://img.shields.io/badge/PostgreSQL-0000bb?style=plastic&logo=postgresql&logoColor=white)
 ![handlebars](https://img.shields.io/badge/Handlebars-bb0000.svg?style=plastic&logo=Handlebars.js&logoColor=white)
 
@@ -81,6 +81,14 @@ APP_STATE={Estado de la App} #Estados posibles [dev,prod]
 
 
 ##  Consideraciones
+### *Generales*
+>La arquitectura del proyecto posee tres componenetes principales:
+>- Funciones de control de datos en la base de datos, los cuales se pueden identificar por su terminación "Ctl".
+>- Ruteo de los diferentes endpoints, dichos archivos se pueden identificar por su extención ".routes.js".
+>- Las funciones intermedias, las cuales dan apoyo a la funcionalidad de los dos puntos anteriors, las cuales se encuentran en un único archivo llamado "tools.js", usado tanto para las lógicas de los skaters, como colaboradores.
+>
+>Finalmente indicar que la arquitectura mencionada está segregada según el tipo de usuario, a modo de poder separar la lógica en dos servicios diferentes, uno orientado a los skaters y otro orientado a la intranet empresarial.
+### *Específicas*
 >El Administrador posee el rol que le autoriza acceder a las funcionalidades de:
 >- Acceso a home, ingresar, listar postulantes, *intranet* y cerrar sesion.
 >- Siempre visualizar tanto a los skaters "aprobados" como a los "en revisión".
